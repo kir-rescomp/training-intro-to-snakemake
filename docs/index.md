@@ -1,3 +1,7 @@
+<div class="catalog-return">
+  <a href="https://kir-rescomp.github.io/kir-training-home/">← Return to KIR Training Catalogue</a>
+</div>
+
 <h1></h1>
 
 <div class="admonition spinner" style="text-align: center;">
