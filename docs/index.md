@@ -9,7 +9,7 @@
     <span style="display: inline-block; animation: pulse 2s ease-in-out infinite;">🚧</span>
     Work in Progress
   </p>
-  <p>This repository is under active development.<br>Expected completion: <strong>12th of November 2025</strong></p>
+  <p>This repository is under active development.<br>Expected completion: <strong>01st of February 2026</strong></p>
 </div>
 
 <style>
