@@ -16,7 +16,8 @@ The inputs are paired-end FASTQ files. The final output is a single counts matri
 
 Before writing a single rule, establish a clean directory structure:
 
-```
+<div class="dracula" markdown="1">
+```rust
 rnaseq_pipeline/
 ├── Snakefile
 ├── config.yaml
@@ -30,6 +31,7 @@ rnaseq_pipeline/
 ├── logs/
 └── results/
 ```
+</div>
 
 Keep `logs/` and `results/` separate from `data/`. This means you can safely delete all intermediate results without touching raw inputs, and re-run from scratch is simply `rm -rf results/ logs/`.
 
@@ -37,6 +39,7 @@ Keep `logs/` and `results/` separate from `data/`. This means you can safely del
 
 Rather than hardcoding sample names or genome paths inside the Snakefile, put them in a YAML config file. This is the single file a collaborator — or your future self — should need to edit when reusing the pipeline on a new dataset.
 
+<div class="dracula" markdown="1">
 ```yaml title="config.yaml"
 samples:
   - SRR001
@@ -53,14 +56,17 @@ threads:
   hisat2: 8
   featurecounts: 4
 ```
+</div>
 
 Load it at the top of the Snakefile with the `configfile:` directive:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 configfile: "config.yaml"
 
 SAMPLES = config["samples"]
 ```
+</div>
 
 After this, `config` is a standard Python dictionary. `SAMPLES` is the list `["SRR001", "SRR002", "SRR003"]`. Changing the sample list in `config.yaml` is the only edit needed to run the same pipeline on a new experiment.
 
