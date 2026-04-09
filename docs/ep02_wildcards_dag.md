@@ -76,11 +76,13 @@ Named files are accessed with dot notation: `{input.r1}`, `{output.html}`. This 
 
 A wildcard rule can produce outputs for any sample, but `rule all` needs to name all of them explicitly. Writing them by hand defeats the purpose. `expand()` generates a concrete list of filenames by substituting values into a template:
 
+<div class="dracula" markdown="1">
 ```python
 expand("results/fastqc/{sample}_{read}_fastqc.html",
        sample=["SRR001", "SRR002", "SRR003"],
        read=["R1", "R2"])
 ```
+
 
 This produces:
 
@@ -94,11 +96,13 @@ This produces:
     "results/fastqc/SRR003_R2_fastqc.html",
 ]
 ```
+</div>
 
 By default, `expand()` produces the **Cartesian product** — every combination of `sample` and `read`. This is exactly what you want for FastQC reports.
 
 Used in `rule all`:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 SAMPLES = ["SRR001", "SRR002", "SRR003"]
 
@@ -108,6 +112,7 @@ rule all:
                sample=SAMPLES,
                read=["R1", "R2"])
 ```
+</div>
 
 !!! tip "Capitalise global constants"
     Sample lists and other global values are written in `UPPER_CASE` at the top of the Snakefile by convention. This visually distinguishes them from wildcards (which are lowercase, resolved per-job) and Python variables local to a rule.
