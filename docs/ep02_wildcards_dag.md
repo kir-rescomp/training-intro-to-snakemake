@@ -123,17 +123,21 @@ Snakemake's internal model of your workflow is a **Directed Acyclic Graph**: eac
 
 Render it to inspect the structure:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 snakemake --dag | dot -Tsvg > dag.svg
 ```
+
 
 For a three-sample, four-rule pipeline, you will see a clean tree: `rule all` at the top, `featurecounts` aggregating BAMs from all three alignment branches, each branch independently running FastQC, fastp, and HISAT2.
 
 For large workflows with many samples, the full DAG becomes unreadably dense. Use the rule-level view instead:
 
-```bash
+```py
 snakemake --rulegraph | dot -Tsvg > rulegraph.svg
 ```
+
+
 
 The rule graph shows one node per rule — the logical structure without per-sample repetition. This is the view to put in papers and README files.
 
@@ -144,13 +148,14 @@ The rule graph shows one node per rule — the logical structure without per-sam
 
 With wildcards and `expand()` in place, the dry-run output becomes genuinely informative:
 
-```bash
+```py
 snakemake --cores 1 -n -p
 ```
 
+
 Each job appears with its resolved wildcard values, inputs, outputs, and the exact shell command that would execute:
 
-```
+```rust
 rule fastqc:
     input: data/SRR001_R1.fastq.gz
     output: results/fastqc/SRR001_R1_fastqc.html, results/fastqc/SRR001_R1_fastqc.zip
@@ -162,7 +167,7 @@ Scan this output carefully before running on the cluster. Wildcards that resolve
 
 ## Useful inspection commands
 
-```bash
+```py
 # List all rules defined in the Snakefile
 snakemake --list
 
@@ -172,6 +177,7 @@ snakemake --summary
 
 `--summary` is particularly useful after a partial run: it shows which outputs exist, their timestamps, and whether they are up to date relative to their inputs.
 
+</div>
 ---
 
 ## Exercise 2
