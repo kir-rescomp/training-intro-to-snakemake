@@ -6,7 +6,7 @@ Picture a familiar scene. You have single-end RNA-seq samples — `SRR014335`, `
 
 Then reality arrives.
 
-- Your PI sends two more samples. You edit the loop, rerun everything — including the three samples that were already done.
+- Your PI sends two more samples. You edit the loop, rerun everything — including the six samples that were already done.
 - You realise you used the wrong HISAT2 index. Which steps need to rerun? You're not sure, so you delete everything and start again.
 - A compute node fails mid-alignment. The BAM file is half-written. Your script doesn't notice, and continues downstream with a corrupt file.
 - Three months later, a reviewer asks exactly how the counts table was produced. You have a script, but it doesn't capture which version of trimmer was used, which genome annotation, or whether you re-ran anything manually.
