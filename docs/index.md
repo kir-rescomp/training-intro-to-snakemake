@@ -37,16 +37,16 @@
     Paired-end FASTQs
            │
            ▼
-       FastQC          ← quality assessment (per sample, per read)
+        FastQC          ← quality assessment (per sample, per read)
            │
            ▼
-        fastp           ← adapter trimming (intermediate outputs auto-deleted)
+         fastp          ← adapter trimming (intermediate outputs auto-deleted)
            │
            ▼
-       HISAT2           ← splice-aware alignment (BAMs write-protected)
+        HISAT2          ← splice-aware alignment (BAMs write-protected)
            │
            ▼
-     featureCounts      ← quantification across all samples in one call
+        Subread         ← quantification across all samples in one call
            │
            ▼
       counts matrix

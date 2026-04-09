@@ -174,7 +174,7 @@ On a cluster where jobs cost real CPU hours, running a dry-run first is non-nego
 
 ## Key takeaways
 
-!!! success "Episode 1 summary"
+!!! clipboard-list "Episode 1 summary"
     - Snakemake describes *outputs and their dependencies*, not a sequence of steps to execute.
     - A **rule** connects `input:` files, `output:` files, and an action (`shell:`, `run:`, or `script:`).
     - `{input}` and `{output}` are placeholders that Snakemake substitutes at runtime.
