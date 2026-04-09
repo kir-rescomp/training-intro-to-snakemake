@@ -36,6 +36,8 @@ This workshop covers **Snakemake 9**, which uses a clean executor plugin system 
 
 The basic unit of a Snakemake workflow is a **rule**. Here is the simplest possible one:
 
+<div class="snakefile" markdown="1">
+
 ```python title="Snakefile"
 rule say_hello:
     output:
@@ -43,6 +45,7 @@ rule say_hello:
     shell:
         "echo 'Hello, Snakemake' > {output}"
 ```
+</div>
 
 | Component | Meaning |
 |-----------|---------|
@@ -53,19 +56,22 @@ rule say_hello:
 
 Run it:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 snakemake --cores 1 hello.txt
 ```
+</div>
 
 Snakemake sees that `hello.txt` doesn't exist, finds the rule that produces it, and runs the shell command. Run it again — it prints "Nothing to be done" because `hello.txt` already exists and is up to date.
 
-!!! note "Snakemake works backwards"
+!!! circle-info "Snakemake works backwards"
     You tell Snakemake *what you want*, not *what to run*. It finds the rule that produces your target, then traces backwards through its inputs to build a full execution plan. This reversal — from imperative to declarative — is the core shift in thinking.
 
 ## Adding an input
 
 Rules become useful when they declare both inputs and outputs, establishing a dependency:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule count_lines:
     input:
@@ -75,6 +81,7 @@ rule count_lines:
     shell:
         "wc -l {input} > {output}"
 ```
+</div>
 
 Now Snakemake knows: to produce `line_count.txt`, it first needs `hello.txt`. Requesting `line_count.txt` therefore triggers `say_hello` automatically. This two-rule chain is already a DAG — a Directed Acyclic Graph of dependencies.
 
@@ -82,11 +89,13 @@ Now Snakemake knows: to produce `line_count.txt`, it first needs `hello.txt`. Re
 
 When you run `snakemake --cores 1` with no explicit target, Snakemake executes the **first rule in the file**. By convention, this is always called `rule all`, and it lists all the final outputs you want from the entire workflow:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule all:
     input:
         "line_count.txt"
 ```
+</div>
 
 `rule all` has no `output:` or `shell:` — its only job is to name the targets. Snakemake traces backwards from these to build the full execution plan.
 
