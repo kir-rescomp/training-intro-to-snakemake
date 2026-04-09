@@ -42,9 +42,12 @@ Rather than hardcoding sample names or genome paths inside the Snakefile, put th
 <div class="dracula" markdown="1">
 ```yaml title="config.yaml"
 samples:
-  - SRR001
-  - SRR002
-  - SRR003
+  - SRR014335
+  - SRR014336
+  - SRR014337
+  - SRR014339
+  - SRR014340
+  - SRR014341
 
 genome:
   hisat2_index: /well/kir/references/hg38/hisat2/genome
@@ -53,7 +56,7 @@ genome:
 threads:
   fastqc: 2
   fastp: 4
-  hisat2: 8
+  hisat2: 4
   featurecounts: 4
 ```
 </div>
