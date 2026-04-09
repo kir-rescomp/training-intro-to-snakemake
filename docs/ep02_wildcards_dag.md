@@ -50,6 +50,7 @@ When Snakemake needs to produce `results/fastqc/SRR001_R1_fastqc.html`, it patte
 
 When a rule produces or consumes multiple files, use **named** inputs and outputs for clarity:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule fastp:
     input:
@@ -67,6 +68,7 @@ rule fastp:
             --html {output.html}
         """
 ```
+</div>
 
 Named files are accessed with dot notation: `{input.r1}`, `{output.html}`. This is far less error-prone than relying on positional ordering, especially as rules grow.
 
