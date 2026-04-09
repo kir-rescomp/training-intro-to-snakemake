@@ -93,6 +93,7 @@ rule all:
 
 ### FastQC
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule fastqc:
     input:
@@ -106,6 +107,7 @@ rule fastqc:
     shell:
         "fastqc {input} --outdir results/fastqc/ --threads {threads} &> {log}"
 ```
+</div>
 
 Two new directives appear here.
 
@@ -115,14 +117,13 @@ Two new directives appear here.
 
 ### fastp (trimming)
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule fastp:
     input:
         r1="data/{sample}.fastq.gz",
-        r2="data/{sample}.fastq.gz"
     output:
         r1=temp("results/trimmed/{sample}.fastq.gz"),
-        r2=temp("results/trimmed/{sample}.fastq.gz"),
         html="results/fastp/{sample}_fastp.html",
         json="results/fastp/{sample}_fastp.json"
     log:
@@ -138,6 +139,7 @@ rule fastp:
             2> {log}
         """
 ```
+</div>
 
 The trimmed FASTQs are wrapped in **`temp()`**. This marks them as intermediate files — Snakemake will automatically delete them once every downstream rule that consumes them has finished. For a 30-sample experiment with 20 GB FASTQs per sample, this saves hundreds of gigabytes of scratch space without any manual cleanup.
 
