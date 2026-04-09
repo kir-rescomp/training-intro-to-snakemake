@@ -546,15 +546,16 @@
   }
   .md-typeset .admonition.circle-question,
   .md-typeset details.circle-question {
-    border-color: rgb(163, 84, 9);
+    border-color: rgb(124, 238, 153);
   }
   .md-typeset .circle-question > .admonition-title,
   .md-typeset .circle-question > summary {
-    background-color: rgba(241, 113, 27, 0.459);
+    color:rgb(238, 236, 231);
+    background-color: rgba(5, 116, 60, 0.801);
   }
   .md-typeset .circle-question > .admonition-title::before,
   .md-typeset .circle-question > summary::before {
-    background-color: rgb(202, 101, 43);
+    background-color: rgb(12, 241, 100);
     -webkit-mask-image: var(--md-admonition-icon--circle-question);
             mask-image: var(--md-admonition-icon--circle-question);
   }

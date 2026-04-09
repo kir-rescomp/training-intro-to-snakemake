@@ -106,7 +106,8 @@ rule all:
 
 Before running anything for real, ask Snakemake to show you what *would* happen:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 snakemake --cores 1 --dry-run
 # equivalently:
 snakemake --cores 1 -n
@@ -114,57 +115,61 @@ snakemake --cores 1 -n
 
 This prints every job that would be submitted, with its inputs and outputs, but executes nothing. Add `-p` to also print the resolved shell command for each job:
 
-```bash
+```py
 snakemake --cores 1 -n -p
 ```
+</div>
 
 On a cluster where jobs cost real CPU hours, running a dry-run first is non-negotiable.
 
 ---
+!!! circle-question "Exercise"
 
-## Exercise 1
+    ## Exercise 1
 
-Create a directory called `ep01/` and write a `Snakefile` inside it that:
+    Create a directory called `ep01/` and write a `Snakefile` inside it that:
 
-1. Creates a file `numbers.txt` containing the integers 1 to 10, one per line (`seq 1 10`).
-2. Creates a file `sorted_numbers.txt` by sorting `numbers.txt` in reverse numerical order (`sort -rn`).
-3. Has a `rule all` that requests `sorted_numbers.txt` as its final output.
+    1. Creates a file `numbers.txt` containing the integers 1 to 10, one per line (`seq 1 10`).
+    2. Creates a file `sorted_numbers.txt` by sorting `numbers.txt` in reverse numerical order (`sort -rn`).
+    3. Has a `rule all` that requests `sorted_numbers.txt` as its final output.
 
-Test it:
+    Test it:
 
-```bash
-cd ep01/
-snakemake --cores 1 -n -p   # dry run first
-snakemake --cores 1         # then run for real
-```
-
-Delete `sorted_numbers.txt` and re-run. Does Snakemake regenerate it? Delete `numbers.txt` too — what does Snakemake do now?
-
-??? success "Solution"
-
-    <div class="snakefile" markdown="1">
-    ```python title="Snakefile"
-    rule all:
-        input:
-            "sorted_numbers.txt"
-
-
-    rule generate_numbers:
-        output:
-            "numbers.txt"
-        shell:
-            "seq 1 10 > {output}"
-
-
-    rule sort_numbers:
-        input:
-            "numbers.txt"
-        output:
-            "sorted_numbers.txt"
-        shell:
-            "sort -rn {input} > {output}"
+     <div class="dracula" markdown="1">
+    ```py
+    cd ep01/
+    snakemake --cores 1 -n -p   # dry run first
+    snakemake --cores 1         # then run for real
     ```
     </div>
+
+    Delete `sorted_numbers.txt` and re-run. Does Snakemake regenerate it? Delete `numbers.txt` too — what does Snakemake do now?
+
+    ??? success "Solution"
+
+        <div class="snakefile" markdown="1">
+        ```python title="Snakefile"
+        rule all:
+            input:
+                "sorted_numbers.txt"
+
+
+        rule generate_numbers:
+            output:
+                "numbers.txt"
+            shell:
+                "seq 1 10 > {output}"
+
+
+        rule sort_numbers:
+            input:
+                "numbers.txt"
+            output:
+                "sorted_numbers.txt"
+            shell:
+                "sort -rn {input} > {output}"
+        ```
+        </div>
 ---
 
 ## Key takeaways
