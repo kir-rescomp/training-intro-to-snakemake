@@ -141,6 +141,8 @@ snakemake --cores 1         # then run for real
 Delete `sorted_numbers.txt` and re-run. Does Snakemake regenerate it? Delete `numbers.txt` too — what does Snakemake do now?
 
 ??? success "Solution"
+
+    <div class="snakefile" markdown="1">
     ```python title="Snakefile"
     rule all:
         input:
@@ -162,7 +164,7 @@ Delete `sorted_numbers.txt` and re-run. Does Snakemake regenerate it? Delete `nu
         shell:
             "sort -rn {input} > {output}"
     ```
-
+    </div>
 ---
 
 ## Key takeaways
