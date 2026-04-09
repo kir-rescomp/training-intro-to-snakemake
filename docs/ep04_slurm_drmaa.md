@@ -1,4 +1,4 @@
-# Episode 4: Scaling to the Cluster — SLURM via DRMAA
+# Episode 4: Scaling to the Cluster — Slurm via DRMAA
 
 ## From laptop to HPC
 
