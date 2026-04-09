@@ -39,6 +39,8 @@ Keep `logs/` and `results/` separate from `data/`. This means you can safely del
 
 Rather than hardcoding sample names or genome paths inside the Snakefile, put them in a YAML config file. This is the single file a collaborator — or your future self — should need to edit when reusing the pipeline on a new dataset.
 
+!!! tip "Extracting filename pre-fixes can be done with `ls -1 | awk -F'[-.]' '{print $1}'`"
+
 <div class="dracula" markdown="1">
 ```yaml title="config.yaml"
 samples:
