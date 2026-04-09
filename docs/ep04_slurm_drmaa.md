@@ -169,7 +169,7 @@ mkdir -p logs/drmaa
 
 SLURM writes per-job stdout and stderr to `logs/drmaa/job_%j.out` and `logs/drmaa/job_%j.err` (where `%j` is the SLURM job ID). These are distinct from your rule-level `log:` files, which capture the tool's own output. When debugging a failure, check both:
 
-- **Rule log** (`logs/hisat2/SRR001.log`) — what the tool printed
+- **Rule log** (`logs/hisat2/SRR014335.log`) — what the tool printed
 - **DRMAA job log** (`logs/drmaa/job_12345678.err`) — what SLURM saw (out of memory, time limit, etc.)
 
 ## Running the pipeline
