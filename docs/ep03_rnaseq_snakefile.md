@@ -188,6 +188,7 @@ The shell command pipes HISAT2's SAM output directly into `samtools sort`. No in
 
 ### featureCounts
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule featurecounts:
     input:
@@ -210,10 +211,11 @@ rule featurecounts:
             2> {log}
         """
 ```
+</div>
 
 This is a **many-to-one rule**: it takes all BAMs as input and produces a single output. Notice that `expand()` is used *inside the rule's input block*, not in `rule all`. This resolves the wildcards immediately, producing a concrete list. Snakemake calls this an aggregate step.
 
-!!! note "`expand()` inside a rule removes wildcards"
+!!! note-sticky "`expand()` inside a rule removes wildcards"
     Using `expand()` inside `input:` generates a fixed list — there are no wildcards left to resolve. Snakemake will not run this rule once per sample; it will run it once, receiving all BAMs as input simultaneously. The upstream `hisat2` rules still run per-sample normally; `featurecounts` simply waits until all of them have completed.
 
 ## The complete Snakefile
