@@ -71,7 +71,7 @@ SAMPLES = config["samples"]
 ```
 </div>
 
-After this, `config` is a standard Python dictionary. `SAMPLES` is the list `["SRR001", "SRR002", "SRR003"]`. Changing the sample list in `config.yaml` is the only edit needed to run the same pipeline on a new experiment.
+After this, `config` is a standard Python dictionary. Changing the sample list in `config.yaml` is the only edit needed to run the same pipeline on a new experiment.
 
 ## `rule all`
 
@@ -82,7 +82,7 @@ rule all:
     input:
         # FastQC reports — one HTML per sample per read direction
         expand("results/fastqc/{sample}_{read}_fastqc.html",
-               sample=SAMPLES, read=["R1", "R2"]),
+               sample=SAMPLES ),
         # fastp QC reports
         expand("results/fastp/{sample}_fastp.html", sample=SAMPLES),
         # Final counts matrix
@@ -96,12 +96,12 @@ rule all:
 ```python title="Snakefile"
 rule fastqc:
     input:
-        "data/{sample}_{read}.fastq.gz"
+        "data/{sample}.fastq.gz"
     output:
-        html="results/fastqc/{sample}_{read}_fastqc.html",
-        zip="results/fastqc/{sample}_{read}_fastqc.zip"
+        html="results/fastqc/{sample}_fastqc.html",
+        zip="results/fastqc/{sample}_fastqc.zip"
     log:
-        "logs/fastqc/{sample}_{read}.log"
+        "logs/fastqc/{sample}.log"
     threads: config["threads"]["fastqc"]
     shell:
         "fastqc {input} --outdir results/fastqc/ --threads {threads} &> {log}"
@@ -118,11 +118,11 @@ Two new directives appear here.
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}_R1.fastq.gz",
-        r2="data/{sample}_R2.fastq.gz"
+        r1="data/{sample}.fastq.gz",
+        r2="data/{sample}.fastq.gz"
     output:
-        r1=temp("results/trimmed/{sample}_R1.fastq.gz"),
-        r2=temp("results/trimmed/{sample}_R2.fastq.gz"),
+        r1=temp("results/trimmed/{sample}.fastq.gz"),
+        r2=temp("results/trimmed/{sample}.fastq.gz"),
         html="results/fastp/{sample}_fastp.html",
         json="results/fastp/{sample}_fastp.json"
     log:
@@ -131,8 +131,8 @@ rule fastp:
     shell:
         """
         fastp \
-            -i {input.r1} -I {input.r2} \
-            -o {output.r1} -O {output.r2} \
+            -i {input} \
+            -o {output} \
             --html {output.html} --json {output.json} \
             --thread {threads} \
             2> {log}
