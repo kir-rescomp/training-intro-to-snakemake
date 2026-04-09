@@ -123,3 +123,10 @@ copyright : KIR Training Catalogue is licensed under a <a rel="noopener" target=
 extra_css:
   - stylesheets/extra.css
   - stylesheets/catalogue-return-button.css
+  - stylesheets/code_block.css
+  - stylesheets/code_block_colour_dracula.css
+  - stylesheets/code_block_colour_monokai.css
+  - stylesheets/code_block_colour_github_dark.css
+  - stylesheets/code_block_colour_nord.css
+  - stylesheets/code_block_colour_onedark.css
+  - stylesheets/side_bar_menu.css
