@@ -46,7 +46,7 @@
        HISAT2           ← splice-aware alignment (BAMs write-protected)
            │
            ▼
-     featureCounts      ← quantification across all samples in one call
+        Subread         ← quantification across all samples in one call
            │
            ▼
       counts matrix
