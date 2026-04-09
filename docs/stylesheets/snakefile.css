@@ -1,0 +1,177 @@
+/* ============================================================
+   Snakefile code block theme for MkDocs Material
+   Usage: add class="snakefile" to your fenced code block
+   Requires mkdocs-material + pymdownx.highlight + attr_list
+
+   ``` python title="Snakefile" { class="snakefile" }
+   ...
+   ```
+
+   Or apply globally to all blocks with title="Snakefile"
+   via the :has() selector at the bottom of this file.
+   ============================================================ */
+
+/* ── Base: dark background matching Dracula, snake-green accents ── */
+.snakefile .highlight {
+    background: #1e2120 !important;
+    color:      #e8f5e9 !important;
+    border:     1px solid #2d4a2d !important;
+    border-radius: 0.3rem !important;
+}
+
+.snakefile .highlight pre {
+    background: #1e2120 !important;
+    margin: 0;
+}
+
+.snakefile .highlight code {
+    background: #1e2120 !important;
+}
+
+/* ── Title / filename bar ── */
+.snakefile .highlight span.filename {
+    background:    #1a3320 !important;
+    color:         #69d27e !important;
+    border-bottom: 1px solid #2d6b3a !important;
+    font-weight:   600;
+    font-family:   var(--md-code-font-family, monospace);
+    letter-spacing: 0.02em;
+}
+
+/* Small snake icon prefix for the filename tab */
+.snakefile .highlight span.filename::before {
+    content: "🐍 ";
+    font-size: 0.85em;
+}
+
+/* ── Copy button ── */
+.snakefile .highlight .md-clipboard {
+    color: #4a9e5c !important;
+}
+
+.snakefile .highlight .md-clipboard:hover {
+    color: #69d27e !important;
+}
+
+/* ── Line numbers (if enabled) ── */
+.snakefile .highlight .linenodiv pre {
+    background: #1a2820 !important;
+    color:      #3d6b45 !important;
+    border-right: 1px solid #2d4a2d !important;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Syntax token colours
+   Snakemake files are parsed by the Python lexer in Pygments.
+
+   Key Snakemake constructs and their token classes:
+     rule / checkpoint / use rule    → .k  (keyword — only if using
+                                            `snakemake` language; with
+                                            `python` lexer these fall to .n)
+     input / output / shell / run /
+     params / threads / resources /
+     log / benchmark / conda /
+     singularity / script / wrapper  → .n  (Name, or .nf if called)
+     Strings (shell commands, paths) → .s / .s1 / .s2
+     Wildcards {output} in strings   → .si (string interpolation)
+     Numbers                         → .mi / .mf
+     Comments                        → .c1
+   ──────────────────────────────────────────────────────────── */
+
+/* Comments */
+.snakefile .highlight .c,
+.snakefile .highlight .c1,
+.snakefile .highlight .cm,
+.snakefile .highlight .cs  { color: #546e50; font-style: italic; }
+
+/* Keywords — `rule`, `checkpoint` if snakemake lexer is active;
+   also `if`, `else`, `for`, `in`, `not`, `and`, `or`, `return`   */
+.snakefile .highlight .k,
+.snakefile .highlight .kn,
+.snakefile .highlight .kd,
+.snakefile .highlight .kr,
+.snakefile .highlight .kp  { color: #69d27e; font-weight: 600; }
+
+.snakefile .highlight .kc   { color: #a5d6a7; }   /* True / False / None */
+.snakefile .highlight .kt   { color: #80cbc4; }   /* type hints */
+
+/* Names — generic identifiers */
+.snakefile .highlight .n    { color: #c8e6c9; }
+
+/* Built-ins (expand, ancient, temp, directory, protected…) */
+.snakefile .highlight .nb   { color: #80cbc4; font-style: italic; }
+
+/* Function / method names — Snakemake sub-directives often land here */
+.snakefile .highlight .nf   { color: #a5d6a7; }
+
+/* Class names */
+.snakefile .highlight .nc   { color: #80deea; }
+
+/* Attribute names — sub-directive keywords (input:, output:, shell:…)
+   when parsed with the snakemake lexer show up as .na              */
+.snakefile .highlight .na   { color: #69d27e; font-style: italic; }
+
+/* Namespace / module names */
+.snakefile .highlight .nn   { color: #b2dfdb; }
+
+/* Variable names */
+.snakefile .highlight .nv   { color: #c8e6c9; }
+
+/* Decorators */
+.snakefile .highlight .nd   { color: #69d27e; }
+
+/* Operators */
+.snakefile .highlight .o,
+.snakefile .highlight .ow   { color: #80cbc4; }
+
+/* Punctuation */
+.snakefile .highlight .p    { color: #c8e6c9; }
+
+/* ── Strings — warm yellow-green to contrast with the green palette ── */
+.snakefile .highlight .s,
+.snakefile .highlight .s1,
+.snakefile .highlight .s2,
+.snakefile .highlight .sb,
+.snakefile .highlight .sc,
+.snakefile .highlight .sd,
+.snakefile .highlight .sh,
+.snakefile .highlight .sx,
+.snakefile .highlight .sr,
+.snakefile .highlight .ss   { color: #dce775; }
+
+/* Wildcards / f-string interpolation — {output}, {input.bam} etc. */
+.snakefile .highlight .si   { color: #fff176; font-weight: 600; }
+
+/* Escape sequences */
+.snakefile .highlight .se   { color: #a5d6a7; }
+
+/* ── Numbers ── */
+.snakefile .highlight .m,
+.snakefile .highlight .mi,
+.snakefile .highlight .mf,
+.snakefile .highlight .mh,
+.snakefile .highlight .mo   { color: #b2dfdb; }
+
+/* ── Preprocessor / magic comments ── */
+.snakefile .highlight .cp   { color: #69d27e; }
+
+/* ────────────────────────────────────────────────────────────
+   Optional: target ANY code block whose title is "Snakefile"
+   without needing the class="snakefile" attribute.
+   Requires a browser that supports :has() — all modern browsers.
+   ──────────────────────────────────────────────────────────── */
+.highlight:has(span.filename:contains("Snakefile")) {
+    /* Inherit all .snakefile rules above by adding the class via JS,
+       OR duplicate the key overrides here if you prefer pure CSS.    */
+}
+
+/* ────────────────────────────────────────────────────────────
+   Quick-fix patch for .dracula title bar visibility
+   (title text was white-on-white).
+   Apply this in addition to your existing dracula.css
+   ──────────────────────────────────────────────────────────── */
+.dracula .highlight span.filename {
+    background:    #343746 !important;
+    color:         #f8f8f2 !important;
+    border-bottom: 1px solid #6272a4 !important;
+}
