@@ -2,21 +2,21 @@
 
 ## The scaling problem
 
-In Episode 1 you wrote rules with hardcoded filenames. That works for one file. But RNA-seq experiments rarely involve one sample — you have `SRR001`, `SRR002`, `SRR003`, and next month, potentially six more.
+In Episode 1 you wrote rules with hardcoded filenames. That works for one file. But RNA-seq experiments rarely involve one sample — you have `SRR014335`, `SRR014336`, `SRR014337`, `SRR014339`, `SRR014340`, `SRR014341`, and next month, potentially six more.
 
 Writing one rule per sample is not the answer:
 
 <div class="dracula" markdown="1">
 ```python
 # Don't do this
-rule fastqc_SRR001:
-    input: "data/SRR014335-chr1.fastq"
-    output: "results/fastqc/SRR001_R1_fastqc.html"
+rule fastqc_SRR014335:
+    input: "data/SRR014335.fastq"
+    output: "results/fastqc/SRR014335_fastqc.html"
     shell: "fastqc {input} -o results/fastqc/"
 
-rule fastqc_SRR002:
-    input: "data/SRR014337-chr1.fastq"
-    output: "results/fastqc/SRR002_R1_fastqc.html"
+rule fastqc_SRR014336:
+    input: "data/SRR014336.fastq"
+    output: "results/fastqc/SRR014336_fastqc.html"
     shell: "fastqc {input} -o results/fastqc/"
     # ... and so on
 ```
@@ -41,7 +41,7 @@ rule fastqc:
 ```
 </div>
 
-When Snakemake needs to produce `results/fastqc/SRR001_R1_fastqc.html`, it pattern-matches that path against the output template `results/fastqc/{sample}_{read}_fastqc.html` and extracts `sample=SRR001`, `read=R1`. It then substitutes these values into the input template, expecting to find `data/SRR014335-chr1.fastq`.
+When Snakemake needs to produce `results/fastqc/SRR014335_fastqc.html`, it pattern-matches that path against the output template `results/fastqc/{sample}_fastqc.html` and extracts `sample=SRR014335`. It then substitutes these values into the input template, expecting to find `data/SRR014335.fastq`.
 
 !!! circle-info "Wildcards are resolved from outputs, not inputs"
     Snakemake always works backwards from a *requested output* to determine wildcard values. This means every wildcard that appears in `input:` must also appear in `output:` — otherwise Snakemake has no way to resolve its value.
@@ -54,17 +54,16 @@ When a rule produces or consumes multiple files, use **named** inputs and output
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}_R1.fastq",
-        r2="data/{sample}_R2.fastq"
+        r1="data/{sample}.fastq",
+
     output:
-        r1="results/trimmed/{sample}_R1.fastq",
-        r2="results/trimmed/{sample}_R2.fastq",
+        r1="results/trimmed/{sample}.fastq",
         html="results/fastp/{sample}_fastp.html"
     shell:
         """
         fastp \
-            -i {input.r1} -I {input.r2} \
-            -o {output.r1} -O {output.r2} \
+            -i {input.r1} \
+            -o {output.r1} \
             --html {output.html}
         """
 ```
@@ -78,8 +77,8 @@ A wildcard rule can produce outputs for any sample, but `rule all` needs to name
 
 <div class="dracula" markdown="1">
 ```python
-expand("results/fastqc/{sample}_{read}_fastqc.html",
-       sample=["SRR001", "SRR002", "SRR003"],
+expand("results/fastqc/{sample}_fastqc.html",
+       sample=["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR014341"],
        read=["R1", "R2"])
 ```
 
@@ -88,12 +87,13 @@ This produces:
 
 ```python
 [
-    "results/fastqc/SRR001_R1_fastqc.html",
-    "results/fastqc/SRR001_R2_fastqc.html",
-    "results/fastqc/SRR002_R1_fastqc.html",
-    "results/fastqc/SRR002_R2_fastqc.html",
-    "results/fastqc/SRR003_R1_fastqc.html",
-    "results/fastqc/SRR003_R2_fastqc.html",
+    "results/fastqc/SRR014335_fastqc.html",
+    "results/fastqc/SRR014336_fastqc.html",
+    "results/fastqc/SRR014337_fastqc.html",
+    "results/fastqc/SRR014339_fastqc.html",
+    "results/fastqc/SRR014340_fastqc.html",
+    "results/fastqc/SRR014341_fastqc.html",
+
 ]
 ```
 </div>
@@ -104,13 +104,12 @@ Used in `rule all`:
 
 <div class="snakefile" markdown="1">
 ```python title="Snakefile"
-SAMPLES = ["SRR001", "SRR002", "SRR003"]
+SAMPLES = ["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR014341"]
 
 rule all:
     input:
         expand("results/fastqc/{sample}_{read}_fastqc.html",
                sample=SAMPLES,
-               read=["R1", "R2"])
 ```
 </div>
 
@@ -157,10 +156,10 @@ Each job appears with its resolved wildcard values, inputs, outputs, and the exa
 
 ```rust
 rule fastqc:
-    input: data/SRR014335-chr1.fastq
-    output: results/fastqc/SRR001_R1_fastqc.html, results/fastqc/SRR001_R1_fastqc.zip
-    wildcards: sample=SRR001, read=R1
-    shell: fastqc data/SRR014335-chr1.fastq --outdir results/fastqc/
+    input: data/SRR014335.fastq
+    output: results/fastqc/SRR014335_fastqc.html, results/fastqc/SRR014335_fastqc.zip
+    wildcards: sample=SRR014335
+    shell: fastqc data/SRR014335.fastq --outdir results/fastqc/
 ```
 
 Scan this output carefully before running on the cluster. Wildcards that resolve unexpectedly are much cheaper to catch here than after an eight-hour alignment run.

@@ -62,7 +62,7 @@ The pipeline is driven by a single `config.yaml` — adding a new sample is a on
 | [Episode 1](ep01_motivation.md)       | From shell scripts to Snakemake          | Rules, inputs/outputs, `rule all`, dry runs                  |
 | [Episode 2](ep02_wildcards_dag.md)    | Wildcards, `expand()`, and the DAG       | `{wildcards}`, `expand()`, `--dag`, `--rulegraph`            |
 | [Episode 3](ep03_rnaseq_snakefile.md) | A real Snakefile — RNA-seq from scratch  | `configfile:`, `params:`, `log:`, `temp()`, `protected()`    |
-| [Episode 4](ep04_slurm_drmaa.md)      | Scaling to the cluster — SLURM via DRMAA | `threads:`, `resources:`, `--executor drmaa`, `--drmaa-args`, profiles |
+| [Episode 4](ep04_slurm_drmaa.md)      | Scaling to the cluster — Slurm via DRMAA | `threads:`, `resources:`, `--executor drmaa`, `--drmaa-args`, profiles |
 | [Episode 5](ep05_best_practices.md)   | Robustness and best practices            | `benchmark:`, `--rerun-incomplete`, `wildcard_constraints:`, conda envs |
 
 ## Before you start

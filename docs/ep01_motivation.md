@@ -2,11 +2,11 @@
 
 ## The shell-script trap
 
-Picture a familiar scene. You have three paired-end RNA-seq samples — `SRR001`, `SRR002`, `SRR003` — and a clean bash script that runs FastQC, trims adapters, aligns to the genome, and counts reads. It works. You're happy.
+Picture a familiar scene. You have single-end RNA-seq samples — `SRR014335`, `SRR014336`, `SRR014337`, `SRR014339`, `SRR014340`, `SRR014341` — and a clean bash script that runs FastQC, trims adapters, aligns to the genome, and counts reads. It works. You're happy.
 
 Then reality arrives.
 
-- Your PI sends two more samples. You edit the loop, rerun everything — including the three samples that were already done.
+- Your PI sends two more samples. You edit the loop, rerun everything — including the six samples that were already done.
 - You realise you used the wrong HISAT2 index. Which steps need to rerun? You're not sure, so you delete everything and start again.
 - A compute node fails mid-alignment. The BAM file is half-written. Your script doesn't notice, and continues downstream with a corrupt file.
 - Three months later, a reviewer asks exactly how the counts table was produced. You have a script, but it doesn't capture which version of trimmer was used, which genome annotation, or whether you re-ran anything manually.
