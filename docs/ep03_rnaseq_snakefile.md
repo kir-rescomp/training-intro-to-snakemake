@@ -275,7 +275,7 @@ rule fastp:
 rule hisat2:
     input:
         r1="results/trimmed/{sample}_R1.fastq",
-        r2="results/trimmed/{sample}_R2.fastq"
+
     output:
         bam=protected("results/bam/{sample}.sorted.bam"),
         bai="results/bam/{sample}.sorted.bam.bai"
@@ -326,13 +326,15 @@ rule featurecounts:
 
 For a small test dataset, or to verify the DAG before submitting to the cluster:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 # Always dry-run first
 snakemake --cores 8 -n -p
 
-# Run for real
+# Production run 
 snakemake --cores 8
 ```
+</div>
 
 `--cores` sets the total CPU budget Snakemake may use concurrently. It will schedule multiple independent jobs in parallel, respecting each rule's `threads:` declaration. For example, with `--cores 8`, two four-thread fastp jobs could run simultaneously.
 
@@ -341,39 +343,41 @@ snakemake --cores 8
 
 ---
 
-## Exercise 3
+!!! circle-question "Exercise"
 
-1. Add a fourth sample `SRR004` to `config.yaml`. Run `snakemake --cores 1 -n` and confirm that only jobs for `SRR004` appear in the execution plan.
+    ## Exercise 3
 
-2. Add a `multiqc` rule that takes all FastQC zip files and fastp JSON files as input and produces `results/multiqc/multiqc_report.html`. Add this output to `rule all`.
+    1. Add a fourth sample `SRR004` to `config.yaml`. Run `snakemake --cores 1 -n` and confirm that only jobs for `SRR004` appear in the execution plan.
 
-3. Render the rule graph: `snakemake --rulegraph | dot -Tsvg > rulegraph.svg`.
+    2. Add a `multiqc` rule that takes all FastQC zip files and fastp JSON files as input and produces `results/multiqc/multiqc_report.html`. Add this output to `rule all`.
 
-??? success "MultiQC rule"
-    ```python
-    rule multiqc:
-        input:
-            fastqc=expand("results/fastqc/{sample}_{read}_fastqc.zip",
-                          sample=SAMPLES, read=["R1", "R2"]),
-            fastp=expand("results/fastp/{sample}_fastp.json", sample=SAMPLES)
-        output:
-            "results/multiqc/multiqc_report.html"
-        log:
-            "logs/multiqc/multiqc.log"
-        shell:
-            """
-            multiqc results/fastqc/ results/fastp/ \
-                --outdir results/multiqc/ \
-                2> {log}
-            """
-    ```
-    Add `"results/multiqc/multiqc_report.html"` to the `input:` of `rule all`.
+    3. Render the rule graph: `snakemake --rulegraph | dot -Tsvg > rulegraph.svg`.
+
+    ??? success "MultiQC rule"
+        ```python
+        rule multiqc:
+            input:
+                fastqc=expand("results/fastqc/{sample}_{read}_fastqc.zip",
+                              sample=SAMPLES, read=["R1", "R2"]),
+                fastp=expand("results/fastp/{sample}_fastp.json", sample=SAMPLES)
+            output:
+                "results/multiqc/multiqc_report.html"
+            log:
+                "logs/multiqc/multiqc.log"
+            shell:
+                """
+                multiqc results/fastqc/ results/fastp/ \
+                    --outdir results/multiqc/ \
+                    2> {log}
+                """
+        ```
+        Add `"results/multiqc/multiqc_report.html"` to the `input:` of `rule all`.
 
 ---
 
 ## Key takeaways
 
-!!! success "Episode 3 summary"
+!!! clipboard-list "Episode 3 summary"
     - **`configfile:`** loads a YAML file into the `config` dictionary — sample lists and paths belong there, not hardcoded in the Snakefile.
     - **`log:`** declares a capture file for stderr/stdout; redirect to it manually with `2> {log}` or `&> {log}`.
     - **`params:`** holds non-file values (tool flags, index paths) that should not be dependency-tracked.
