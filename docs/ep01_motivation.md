@@ -2,7 +2,7 @@
 
 ## The shell-script trap
 
-Picture a familiar scene. You have three paired-end RNA-seq samples — `SRR001`, `SRR002`, `SRR003` — and a clean bash script that runs FastQC, trims adapters, aligns to the genome, and counts reads. It works. You're happy.
+Picture a familiar scene. You have single-end RNA-seq samples — `SRR014335`, `SRR014336`, `SRR014337`, `SRR014339`, `SRR014340`, `SRR014341` — and a clean bash script that runs FastQC, trims adapters, aligns to the genome, and counts reads. It works. You're happy.
 
 Then reality arrives.
 
