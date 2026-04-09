@@ -156,14 +156,15 @@ localrules: all
 
 `rule all` has no shell command and should always be local. If you have a rule that only creates a directory, writes a small config file, or copies a tiny file, make it local too.
 
-!!! note "Local rules run on the login node"
+!!! note-sticky "Local rules run on the login node"
     Local rules execute directly in the Snakemake process on the login node, with no SLURM submission. Keep them genuinely lightweight — no alignment, no sorting, no compression.
 
 ## Log directory setup
 
 Create the DRMAA log directory before running:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 mkdir -p logs/drmaa
 ```
 
@@ -174,7 +175,7 @@ SLURM writes per-job stdout and stderr to `logs/drmaa/job_%j.out` and `logs/drma
 
 ## Running the pipeline
 
-```bash
+```py
 # Step 1 — dry run to verify the plan and resource assignments
 snakemake \
   --executor drmaa \
@@ -188,7 +189,7 @@ snakemake \
 
 Scan the dry-run output. Confirm that each job shows the memory, threads, runtime, and partition you expect. Then:
 
-```bash
+```py
 # Step 2 — run for real from inside a tmux session
 tmux new -s snakemake
 
@@ -201,6 +202,7 @@ snakemake \
   --latency-wait 30 \
   -p
 ```
+</div>
 
 !!! warning "Always run inside tmux or screen"
     The Snakemake process on the login node is the conductor — it submits jobs, monitors them, and triggers downstream steps when dependencies complete. If this process is killed by an SSH disconnect, submitted jobs may finish but Snakemake will not know, leaving the workflow in an inconsistent state. Always use **tmux** or **screen**.
@@ -222,25 +224,28 @@ default-resources:
 latency-wait: 30
 printshellcmds: true
 ```
-</div>
+
 
 Run with:
 
-```bash
+```py
 snakemake --workflow-profile profiles/drmaa
 ```
+</div>
 
 Commit `profiles/drmaa/config.yaml` to your repository. Collaborators running the same pipeline on BMRC use the same profile with no flags to remember.
 
 ---
 
-## Exercise 4
+!!! circle-question "Exercise"
 
-1. Add `resources:` to every rule in your Episode 3 Snakefile (use the values from this episode as a starting point).
-2. Add `localrules: all` at the top.
-3. Create `logs/drmaa/`.
-4. Run a full dry-run with the DRMAA command. Verify that each job line shows the correct memory, threads, runtime, and partition values.
-5. **Bonus:** Create `profiles/drmaa/config.yaml` and confirm that `snakemake --workflow-profile profiles/drmaa -n -p` produces the same output as the long-form command.
+    ## Exercise 4
+
+    1. Add `resources:` to every rule in your Episode 3 Snakefile (use the values from this episode as a starting point).
+    2. Add `localrules: all` at the top.
+    3. Create `logs/drmaa/`.
+    4. Run a full dry-run with the DRMAA command. Verify that each job line shows the correct memory, threads, runtime, and partition values.
+    5. **Bonus:** Create `profiles/drmaa/config.yaml` and confirm that `snakemake --workflow-profile profiles/drmaa -n -p` produces the same output as the long-form command.
 
 ---
 
