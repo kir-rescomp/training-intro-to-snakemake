@@ -209,6 +209,7 @@ snakemake \
 
 Typing the full `--drmaa-args` string on every invocation is error-prone and not version-controllable in a meaningful way. A **workflow profile** stores all execution options in a YAML file alongside your Snakefile:
 
+<div class="dracula" markdown="1">
 ```yaml title="profiles/drmaa/config.yaml"
 executor: drmaa
 drmaa-args: " -p {resources.partition} --mem={resources.mem_mb} --cpus-per-task={threads} --time=00:{resources.runtime}:00 --output=logs/drmaa/job_%j.out --error=logs/drmaa/job_%j.err"
@@ -221,6 +222,7 @@ default-resources:
 latency-wait: 30
 printshellcmds: true
 ```
+</div>
 
 Run with:
 
