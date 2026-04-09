@@ -15,6 +15,7 @@ This episode covers the directives and invocation flags that close these gaps.
 
 The `benchmark:` directive writes a tab-separated file after every job, recording wall time, CPU time, and peak memory usage:
 
+<div class="dracula" markdown="1">
 ```python
 rule hisat2:
     input: ...
@@ -25,6 +26,7 @@ rule hisat2:
     resources: ...
     shell: ...
 ```
+</div>
 
 The benchmark file for one sample looks like:
 
@@ -106,6 +108,7 @@ Consider a rule with the output pattern `results/{sample}.bam`. If a filename li
 
 Constrain wildcards at the top of the Snakefile using regex:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 wildcard_constraints:
     sample="[A-Za-z0-9]+",   # alphanumeric only — no underscores or dots
@@ -120,6 +123,7 @@ rule hisat2:
         sample="[A-Za-z0-9]+"
     ...
 ```
+</div>
 
 For the RNA-seq pipeline in this workshop, adding global constraints for `sample` and `read` prevents any ambiguous matching between the `{sample}_{read}` pattern in `fastqc` and the `{sample}` pattern in `fastp`.
 
@@ -149,8 +153,8 @@ snakemake --use-conda [other flags]
 
 Snakemake creates each environment on first use and caches it. The YAML file lives in your repository — a reviewer or collaborator can recreate the exact software environment years later.
 
-!!! note "Conda envs and Lmod on BMRC"
-    On BMRC, most tools are deployed via Lmod modules. You can load a module inside the shell command (`module load HISAT2/...`) or use the `envmodules:` directive with `--use-envmodules`. For pipelines you intend to share beyond BMRC, `conda:` provides stronger portability guarantees.
+!!! note-sticky "Lmod on BMRC vs `pixi`/`apptainer`"
+    On BMRC, most tools are deployed via Lmod modules. You can load a module inside the shell command (`module load HISAT2/...`) or use the `envmodules:` directive with `--use-envmodules`. For pipelines you intend to share beyond BMRC, `pixi` or `apptainer` provides stronger portability.
 
 ## The pre-flight checklist
 
@@ -214,37 +218,38 @@ Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["p
 **`--report`** — generate a self-contained HTML run report summarising job timing, resource usage, and workflow structure. Useful for sharing with collaborators or including in supplementary materials.
 
 ---
+!!! circle-question "Exercise"
 
-## Final exercise
+    ## Final exercise
 
-Take the complete Snakefile from Episode 3 and:
+    Take the complete Snakefile from Episode 3 and:
 
-1. Add `benchmark: "benchmarks/{rule}/{sample}.tsv"` to every per-sample rule (you can use the special `{rule}` wildcard, which Snakemake fills with the rule name).
-2. Add global `wildcard_constraints:` for `sample` and `read` at the top of the Snakefile.
-3. Add `--rerun-incomplete` and `--keep-going` to your workflow profile.
-4. Run a final dry-run with `--workflow-profile profiles/drmaa -n -p` and confirm everything looks correct.
+    1. Add `benchmark: "benchmarks/{rule}/{sample}.tsv"` to every per-sample rule (you can use the special `{rule}` wildcard, which Snakemake fills with the rule name).
+    2. Add global `wildcard_constraints:` for `sample` and `read` at the top of the Snakefile.
+    3. Add `--rerun-incomplete` and `--keep-going` to your workflow profile.
+    4. Run a final dry-run with `--workflow-profile profiles/drmaa -n -p` and confirm everything looks correct.
 
-??? success "benchmark with {rule} wildcard"
-    ```python
-    rule fastqc:
-        benchmark: "benchmarks/{rule}/{sample}_{read}.tsv"
-        ...
+    ??? success "benchmark with {rule} wildcard"
+        ```python
+        rule fastqc:
+            benchmark: "benchmarks/{rule}/{sample}_{read}.tsv"
+            ...
 
-    rule fastp:
-        benchmark: "benchmarks/{rule}/{sample}.tsv"
-        ...
+        rule fastp:
+            benchmark: "benchmarks/{rule}/{sample}.tsv"
+            ...
 
-    rule hisat2:
-        benchmark: "benchmarks/{rule}/{sample}.tsv"
-        ...
-    ```
-    Note that `{rule}` is a special keyword — it is not a user-defined wildcard and does not need to appear in `output:`.
+        rule hisat2:
+            benchmark: "benchmarks/{rule}/{sample}.tsv"
+            ...
+        ```
+        Note that `{rule}` is a special keyword — it is not a user-defined wildcard and does not need to appear in `output:`.
 
 ---
 
 ## Key takeaways
 
-!!! success "Episode 5 summary"
+!!! clipboard-list "Episode 5 summary"
     - **`benchmark:`** records timing and peak memory per job — use `max_rss` to tune `resources.mem_mb`.
     - **`--rerun-incomplete`** removes and reruns partially-written outputs from killed jobs.
     - **`--keep-going`** allows independent branches to continue when one branch fails.
