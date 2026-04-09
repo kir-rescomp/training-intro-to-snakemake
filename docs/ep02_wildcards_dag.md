@@ -179,42 +179,44 @@ snakemake --summary
 
 </div>
 ---
+!!! circle-question "Exercise"
 
-## Exercise 2
+    ## Exercise 2
 
-Create a directory `ep02/` with three subdirectories: `input/a/`, `input/b/`, `input/c/`. In each, create a file `reads.txt` containing a short list of words (use `printf` or `echo -e`).
+    Create a directory `ep02/` with three subdirectories: `input/a/`, `input/b/`, `input/c/`. In each, create a file `reads.txt` containing a short list of words (use `printf` or `echo -e`).
 
-Write a Snakefile that:
+    Write a Snakefile that:
 
-1. Uses a `{dataset}` wildcard to count the number of lines in `input/{dataset}/reads.txt`, writing the result to `results/{dataset}_linecount.txt`.
-2. Has a `rule all` using `expand()` to request counts for all three datasets.
-3. Passes `-n -p` dry-run: verify the wildcard values shown are correct.
-4. Runs for real.
-5. **Bonus:** Render the DAG with `--dag | dot -Tsvg > dag.svg` and inspect it.
+    1. Uses a `{dataset}` wildcard to count the number of lines in `input/{dataset}/reads.txt`, writing the result to `results/{dataset}_linecount.txt`.
+    2. Has a `rule all` using `expand()` to request counts for all three datasets.
+    3. Passes `-n -p` dry-run: verify the wildcard values shown are correct.
+    4. Runs for real.
+    5. **Bonus:** Render the DAG with `--dag | dot -Tsvg > dag.svg` and inspect it.
 
-??? success "Solution"
-    ```python title="Snakefile"
-    DATASETS = ["a", "b", "c"]
+    ??? success "Solution"
+        <div class="snakefile" markdown="1">
+        ```python title="Snakefile"
+        DATASETS = ["a", "b", "c"]
 
-    rule all:
-        input:
-            expand("results/{dataset}_linecount.txt", dataset=DATASETS)
+        rule all:
+            input:
+                expand("results/{dataset}_linecount.txt", dataset=DATASETS)
 
 
-    rule count_lines:
-        input:
-            "input/{dataset}/reads.txt"
-        output:
-            "results/{dataset}_linecount.txt"
-        shell:
-            "wc -l {input} > {output}"
-    ```
-
+        rule count_lines:
+            input:
+                "input/{dataset}/reads.txt"
+            output:
+                "results/{dataset}_linecount.txt"
+            shell:
+                "wc -l {input} > {output}"
+        ```
+        </div>
 ---
 
 ## Key takeaways
 
-!!! success "Episode 2 summary"
+!!! clipboard-list "Episode 2 summary"
     - **Wildcards** (`{sample}`, `{read}`) generalise a single rule across many files. They are resolved from output patterns, never from inputs.
     - **Named inputs/outputs** (`input.r1`, `output.html`) keep multi-file rules readable.
     - **`expand()`** generates concrete filename lists from templates — used in `rule all` to enumerate all desired outputs.
