@@ -104,13 +104,12 @@ Used in `rule all`:
 
 <div class="snakefile" markdown="1">
 ```python title="Snakefile"
-SAMPLES = ["SRR001", "SRR002", "SRR003"]
+SAMPLES = ["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR014341"]
 
 rule all:
     input:
         expand("results/fastqc/{sample}_{read}_fastqc.html",
                sample=SAMPLES,
-               read=["R1", "R2"])
 ```
 </div>
 
@@ -157,10 +156,10 @@ Each job appears with its resolved wildcard values, inputs, outputs, and the exa
 
 ```rust
 rule fastqc:
-    input: data/SRR014335-chr1.fastq
-    output: results/fastqc/SRR001_R1_fastqc.html, results/fastqc/SRR001_R1_fastqc.zip
-    wildcards: sample=SRR001, read=R1
-    shell: fastqc data/SRR014335-chr1.fastq --outdir results/fastqc/
+    input: data/SRR014335.fastq
+    output: results/fastqc/SRR014335_fastqc.html, results/fastqc/SRR014335_fastqc.zip
+    wildcards: sample=SRR014335
+    shell: fastqc data/SRR014335.fastq --outdir results/fastqc/
 ```
 
 Scan this output carefully before running on the cluster. Wildcards that resolve unexpectedly are much cheaper to catch here than after an eight-hour alignment run.
