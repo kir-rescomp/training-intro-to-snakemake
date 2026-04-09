@@ -23,27 +23,6 @@
     <img src="./images/snakemake_new_logo.png" alt="drawing" width="300">
 </p>
 
-??? circle-info "Automate Your Workflow With Snakemake"
-
-    Are you working with big data?
-    
-    Do you need to pass your data through various software?
-    
-    Oh wait! Have I updated this output file?
-    
-    If you’ve ever been in this situation, you would know that it can become quite difficult to maintain consistency and accuracy.
-    
-    The more manual steps we execute, the more human errors that are inevitably introduced into our analysis - hampering accuracy and reproducibility.
-    
-    Sit back and let the machines do their magic.
-    
-    Workflow languages automate your data analysis workflow. They also ensure that all your analysis logs are captured in an organized fashion, explicitly outline the software used, capture the input and output files at each step and even allow you to restart the pipeline from where it errored out. The process ensures higher productivity and decreases loss of resources re-running your workflow from the start. Additionally, when your data inevitably becomes big data, workflow languages allow you to easily scale up - meaning, you can move your analysis to a high performance cluster (HPC) without stress!
-    
-    In this hands-on workshop,We will guide you through an introduction to Snakemake, a workflow language with its basis in the popular programming language, Python. Attendees can expect to learn:
-    
-    - The benefits of using Snakemake or other workflow languages,
-    - How to create a workflow to organize your computations, and
-    - How an HPC scheduler (such as Slurm) fits into your workflow
   
 !!! people-group "Who this workshop is for"
 
@@ -90,6 +69,6 @@ The pipeline is driven by a single `config.yaml` — adding a new sample is a on
 
 This workshop assumes Snakemake 9, `snakemake-executor-plugin-drmaa`, and Python DRMAA bindings are already installed. See the [installation guide](../installation.md) for instructions specific to this cluster.
 
-## A note on the examples
+!!! clipboard-list "A note on the examples"
 
-All exercises use toy data (text files, word counts) in Episodes 1–2, then switch to a realistic but deliberately simplified RNA-seq skeleton in Episodes 3–5. The pipeline is designed to illustrate Snakemake concepts cleanly. For a production-grade RNA-seq workflow ready to run out of the box, see the [Snakemake wrappers](https://snakemake-wrappers.readthedocs.io/) and community workflow catalogues.
+    All exercises use toy data (text files, word counts) in Episodes 1–2, then switch to a realistic but deliberately simplified RNA-seq skeleton in Episodes 3–5. The pipeline is designed to illustrate Snakemake concepts cleanly. For a production-grade RNA-seq workflow ready to run out of the box, see the [Snakemake wrappers](https://snakemake-wrappers.readthedocs.io/) and community workflow catalogues.
