@@ -32,7 +32,7 @@ A wildcard is a named placeholder in curly braces — `{sample}`, `{read}`, `{ch
 ```python title="Snakefile"
 rule fastqc:
     input:
-        "data/{sample}_{read}.fastq.gz"
+        "data/{sample}_{read}.fastq"
     output:
         html="results/fastqc/{sample}_{read}_fastqc.html",
         zip="results/fastqc/{sample}_{read}_fastqc.zip"
@@ -54,11 +54,11 @@ When a rule produces or consumes multiple files, use **named** inputs and output
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}_R1.fastq.gz",
-        r2="data/{sample}_R2.fastq.gz"
+        r1="data/{sample}_R1.fastq",
+        r2="data/{sample}_R2.fastq"
     output:
-        r1="results/trimmed/{sample}_R1.fastq.gz",
-        r2="results/trimmed/{sample}_R2.fastq.gz",
+        r1="results/trimmed/{sample}_R1.fastq",
+        r2="results/trimmed/{sample}_R2.fastq",
         html="results/fastp/{sample}_fastp.html"
     shell:
         """

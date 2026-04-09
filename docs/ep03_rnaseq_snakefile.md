@@ -22,12 +22,12 @@ rnaseq_pipeline/
 ├── Snakefile
 ├── config.yaml
 ├── data/
-│   ├── SRR014335-chr1.fastq
-│   ├── SRR014336-chr1.fastq
-│   ├── SRR014337-chr1.fastq
-│   ├── SRR014339-chr1.fastq
-│   ├── SRR014340-chr1.fastq
-│   └── SRR014341-chr1.fastq
+│   ├── SRR014335.fastq
+│   ├── SRR014336.fastq
+│   ├── SRR014337.fastq
+│   ├── SRR014339.fastq
+│   ├── SRR014340.fastq
+│   └── SRR014341.fastq'
 ├── logs/
 └── results/
 ```
@@ -99,7 +99,7 @@ rule all:
 ```python title="Snakefile"
 rule fastqc:
     input:
-        "data/{sample}.fastq.gz"
+        "data/{sample}.fastq"
     output:
         html="results/fastqc/{sample}_fastqc.html",
         zip="results/fastqc/{sample}_fastqc.zip"
@@ -123,9 +123,9 @@ Two new directives appear here.
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}.fastq.gz",
+        r1="data/{sample}.fastq",
     output:
-        r1=temp("results/trimmed/{sample}.fastq.gz"),
+        r1=temp("results/trimmed/{sample}.fastq"),
         html="results/fastp/{sample}_fastp.html",
         json="results/fastp/{sample}_fastp.json"
     log:
@@ -149,11 +149,12 @@ The HTML and JSON reports are *not* marked `temp()` — you want to keep those f
 
 ### HISAT2 (alignment, sort, index)
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule hisat2:
     input:
-        r1="results/trimmed/{sample}_R1.fastq.gz",
-        r2="results/trimmed/{sample}_R2.fastq.gz"
+        r1="results/trimmed/{sample}.fastq",
+
     output:
         bam=protected("results/bam/{sample}.sorted.bam"),
         bai="results/bam/{sample}.sorted.bam.bai"
@@ -175,6 +176,7 @@ rule hisat2:
         samtools index {output.bam}
         """
 ```
+</div>
 
 Two new things here.
 
@@ -216,6 +218,8 @@ This is a **many-to-one rule**: it takes all BAMs as input and produces a single
 
 ## The complete Snakefile
 
+<div class="snakefile" markdown="1">
+
 ```python title="Snakefile"
 configfile: "config.yaml"
 
@@ -234,7 +238,7 @@ rule all:
 
 rule fastqc:
     input:
-        "data/{sample}_{read}.fastq.gz"
+        "data/{sample}_{read}.fastq"
     output:
         html="results/fastqc/{sample}_{read}_fastqc.html",
         zip="results/fastqc/{sample}_{read}_fastqc.zip"
@@ -247,11 +251,11 @@ rule fastqc:
 
 rule fastp:
     input:
-        r1="data/{sample}_R1.fastq.gz",
-        r2="data/{sample}_R2.fastq.gz"
+        r1="data/{sample}_R1.fastq",
+        r2="data/{sample}_R2.fastq"
     output:
-        r1=temp("results/trimmed/{sample}_R1.fastq.gz"),
-        r2=temp("results/trimmed/{sample}_R2.fastq.gz"),
+        r1=temp("results/trimmed/{sample}_R1.fastq"),
+        r2=temp("results/trimmed/{sample}_R2.fastq"),
         html="results/fastp/{sample}_fastp.html",
         json="results/fastp/{sample}_fastp.json"
     log:
@@ -270,8 +274,8 @@ rule fastp:
 
 rule hisat2:
     input:
-        r1="results/trimmed/{sample}_R1.fastq.gz",
-        r2="results/trimmed/{sample}_R2.fastq.gz"
+        r1="results/trimmed/{sample}_R1.fastq",
+        r2="results/trimmed/{sample}_R2.fastq"
     output:
         bam=protected("results/bam/{sample}.sorted.bam"),
         bai="results/bam/{sample}.sorted.bam.bai"
@@ -315,6 +319,8 @@ rule featurecounts:
             2> {log}
         """
 ```
+</div>
+
 
 ## Running locally
 
