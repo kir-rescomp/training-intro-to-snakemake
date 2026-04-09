@@ -10,12 +10,12 @@ Writing one rule per sample is not the answer:
 ```python
 # Don't do this
 rule fastqc_SRR001:
-    input: "data/SRR001_R1.fastq.gz"
+    input: "data/SRR014335-chr1.fastq"
     output: "results/fastqc/SRR001_R1_fastqc.html"
     shell: "fastqc {input} -o results/fastqc/"
 
 rule fastqc_SRR002:
-    input: "data/SRR002_R1.fastq.gz"
+    input: "data/SRR014337-chr1.fastq"
     output: "results/fastqc/SRR002_R1_fastqc.html"
     shell: "fastqc {input} -o results/fastqc/"
     # ... and so on
@@ -32,7 +32,7 @@ A wildcard is a named placeholder in curly braces — `{sample}`, `{read}`, `{ch
 ```python title="Snakefile"
 rule fastqc:
     input:
-        "data/{sample}_{read}.fastq.gz"
+        "data/{sample}_{read}.fastq"
     output:
         html="results/fastqc/{sample}_{read}_fastqc.html",
         zip="results/fastqc/{sample}_{read}_fastqc.zip"
@@ -41,7 +41,7 @@ rule fastqc:
 ```
 </div>
 
-When Snakemake needs to produce `results/fastqc/SRR001_R1_fastqc.html`, it pattern-matches that path against the output template `results/fastqc/{sample}_{read}_fastqc.html` and extracts `sample=SRR001`, `read=R1`. It then substitutes these values into the input template, expecting to find `data/SRR001_R1.fastq.gz`.
+When Snakemake needs to produce `results/fastqc/SRR001_R1_fastqc.html`, it pattern-matches that path against the output template `results/fastqc/{sample}_{read}_fastqc.html` and extracts `sample=SRR001`, `read=R1`. It then substitutes these values into the input template, expecting to find `data/SRR014335-chr1.fastq`.
 
 !!! circle-info "Wildcards are resolved from outputs, not inputs"
     Snakemake always works backwards from a *requested output* to determine wildcard values. This means every wildcard that appears in `input:` must also appear in `output:` — otherwise Snakemake has no way to resolve its value.
@@ -54,11 +54,11 @@ When a rule produces or consumes multiple files, use **named** inputs and output
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}_R1.fastq.gz",
-        r2="data/{sample}_R2.fastq.gz"
+        r1="data/{sample}_R1.fastq",
+        r2="data/{sample}_R2.fastq"
     output:
-        r1="results/trimmed/{sample}_R1.fastq.gz",
-        r2="results/trimmed/{sample}_R2.fastq.gz",
+        r1="results/trimmed/{sample}_R1.fastq",
+        r2="results/trimmed/{sample}_R2.fastq",
         html="results/fastp/{sample}_fastp.html"
     shell:
         """
@@ -141,7 +141,7 @@ snakemake --rulegraph | dot -Tsvg > rulegraph.svg
 
 The rule graph shows one node per rule — the logical structure without per-sample repetition. This is the view to put in papers and README files.
 
-!!! note "Graphviz must be installed"
+!!! note-sticky "Graphviz must be installed"
     `dot` is part of the Graphviz package. On BMRC, load it with `module load Graphviz/...` before running these commands.
 
 ## Dry-run revisited
@@ -157,10 +157,10 @@ Each job appears with its resolved wildcard values, inputs, outputs, and the exa
 
 ```rust
 rule fastqc:
-    input: data/SRR001_R1.fastq.gz
+    input: data/SRR014335-chr1.fastq
     output: results/fastqc/SRR001_R1_fastqc.html, results/fastqc/SRR001_R1_fastqc.zip
     wildcards: sample=SRR001, read=R1
-    shell: fastqc data/SRR001_R1.fastq.gz --outdir results/fastqc/
+    shell: fastqc data/SRR014335-chr1.fastq --outdir results/fastqc/
 ```
 
 Scan this output carefully before running on the cluster. Wildcards that resolve unexpectedly are much cheaper to catch here than after an eight-hour alignment run.
