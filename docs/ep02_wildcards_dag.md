@@ -139,8 +139,8 @@ snakemake --rulegraph | dot -Tsvg > rulegraph.svg
 
 The rule graph shows one node per rule — the logical structure without per-sample repetition. This is the view to put in papers and README files.
 
-!!! note-sticky "Graphviz must be installed"
-    `dot` is part of the Graphviz package. On BMRC, load it with `module load Graphviz/...` before running these commands.
+!!! note-sticky "Snakemake DAG Rendering "
+    - On BMRC, DAG rendering works out of the box because Graphviz’s dot is already installed. On other systems, Graphviz must be available separately before converting Snakemake’s DAG output into an image.”
 
 ## Dry-run revisited
 
