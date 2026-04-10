@@ -117,7 +117,7 @@ Two new directives appear here.
 
 **`log:`** declares a file to capture the rule's output. It behaves like any other Snakemake file path — the parent directory is created automatically, and the file is *never* deleted even if the rule fails. Critically, Snakemake does **not** redirect output to this file automatically; you must do it yourself in the shell command. Use `&> {log}` to capture both stdout and stderr, or `2> {log}` for tools that write results to stdout and diagnostics to stderr.
 
-**`threads:`** declares how many CPU threads this rule needs. Snakemake uses this locally to avoid overcommitting cores across concurrent jobs. On the cluster, it maps to `--cpus-per-task` in the SLURM submission (wired up in Episode 4). Reference it inside the shell command as `{threads}`.
+**`threads:`** declares how many CPU threads this rule needs. Snakemake uses this locally to avoid overcommitting cores across concurrent jobs. On the cluster, it maps to `--cpus-per-task` in the Slurm submission (wired up in Episode 4). Reference it inside the shell command as `{threads}`.
 
 ### fastp (trimming)
 

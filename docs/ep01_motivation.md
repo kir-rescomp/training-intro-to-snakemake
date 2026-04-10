@@ -27,7 +27,7 @@ Several workflow managers exist — Nextflow, WDL, CWL, Luigi. Snakemake has a p
 
 - **It is Python.** Rules embed Python syntax directly. There is no new language to learn beyond what you already use.
 - **It is file-centric.** Dependencies are expressed through input and output files, which maps naturally onto how bioinformatics tools actually work.
-- **It integrates natively with HPC schedulers.** Via executor plugins, the same Snakefile that runs on your laptop submits jobs to SLURM with a single extra flag.
+- **It integrates natively with HPC schedulers.** Via executor plugins, the same Snakefile that runs on your laptop submits jobs to Slurm with a single extra flag.
 - **It is the community standard.** The majority of published bioinformatics pipelines in the past five years are written in Snakemake or Nextflow.
 
 This workshop covers **Snakemake 9**, which uses a clean executor plugin system for cluster submission. All syntax shown here is compatible with v9.

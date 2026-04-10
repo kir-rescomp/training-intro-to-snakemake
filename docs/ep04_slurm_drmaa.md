@@ -4,11 +4,11 @@
 
 Your Snakefile now describes a complete pipeline. Running it locally is useful for testing on a small dataset, but for real data — 30 samples, 8-thread HISAT2 alignments, 30 GB of FASTQs — you need the cluster.
 
-You could wrap each rule in an `sbatch` call. But that reintroduces every problem Snakemake was solving: manual dependency tracking, no reruns logic, no parallel scheduling, no awareness of which jobs failed. Instead, Snakemake can **submit each job to SLURM itself**, using the resource declarations in your rules to construct each submission, respecting dependencies across the graph, and managing the full execution from a single process on the login node.
+You could wrap each rule in an `sbatch` call. But that reintroduces every problem Snakemake was solving: manual dependency tracking, no reruns logic, no parallel scheduling, no awareness of which jobs failed. Instead, Snakemake can **submit each job to Slurm itself**, using the resource declarations in your rules to construct each submission, respecting dependencies across the graph, and managing the full execution from a single process on the login node.
 
 ## The `threads:` directive — revisited
 
-`threads:` does double duty. Locally, it limits how many CPU cores a rule may claim from Snakemake's shared pool. On the cluster, it maps directly to `--cpus-per-task` in the SLURM submission.
+`threads:` does double duty. Locally, it limits how many CPU cores a rule may claim from Snakemake's shared pool. On the cluster, it maps directly to `--cpus-per-task` in the Slurm submission.
 
 <div class="dracula" markdown="1">
 ```python
@@ -19,11 +19,11 @@ rule hisat2:
 ```
 </div>
 
-Always declare `threads:` on any rule that benefits from parallelism, and pass `{threads}` to the tool — that way the threads value is consistent between what SLURM allocates and what the tool uses.
+Always declare `threads:` on any rule that benefits from parallelism, and pass `{threads}` to the tool — that way the threads value is consistent between what Slurm allocates and what the tool uses.
 
 ## The `resources:` directive
 
-`resources:` declares the per-job requirements that the executor plugin reads when constructing the SLURM submission:
+`resources:` declares the per-job requirements that the executor plugin reads when constructing the Slurm submission:
 
 <div class="dracula" markdown="1">
 ```python
@@ -38,7 +38,7 @@ rule hisat2:
 
 These values are not used in the shell command. They exist solely for the scheduler.
 
-| Resource key | Unit | Maps to SLURM flag |
+| Resource key | Unit | Maps to Slurm flag |
 |---|---|---|
 | `mem_mb` | Megabytes | `--mem` |
 | `runtime` | Minutes | `--time` |
@@ -85,7 +85,7 @@ rule featurecounts:
 
 ## The DRMAA executor
 
-DRMAA (Distributed Resource Management Application API) is a standardised C API for submitting, monitoring, and cancelling jobs on cluster schedulers. Snakemake's DRMAA executor plugin uses this API to submit each job as a proper SLURM job — not via a shell call to `sbatch`, but through the DRMAA library that SLURM exposes.
+DRMAA (Distributed Resource Management Application API) is a standardised C API for submitting, monitoring, and cancelling jobs on cluster schedulers. Snakemake's DRMAA executor plugin uses this API to submit each job as a proper Slurm job — not via a shell call to `sbatch`, but through the DRMAA library that Slurm exposes.
 
 The plugin is `snakemake-executor-plugin-drmaa`. Once installed (see the installation guide), activate it with:
 
@@ -111,7 +111,7 @@ snakemake \
 | Flag | Purpose |
 |---|---|
 | `--executor drmaa` | Activate the DRMAA executor plugin |
-| `--drmaa-args "..."` | Native SLURM options passed per job; placeholders filled at runtime |
+| `--drmaa-args "..."` | Native Slurm options passed per job; placeholders filled at runtime |
 | `--drmaa-log-dir logs/drmaa` | Directory for DRMAA-level per-job stdout/stderr |
 | `--jobs 14` | Maximum number of jobs running simultaneously on the cluster |
 | `--default-resources ...` | Fallback resource values for any rule that does not declare them |
@@ -129,10 +129,10 @@ The value is a template string. For every job Snakemake submits, it substitutes 
 | `{threads}` | e.g. `8` |
 | `{resources.runtime}` | e.g. `120`, formatted as `00:120:00` |
 
-The result is a valid SLURM native specification — equivalent to the arguments you would pass to `sbatch`.
+The result is a valid Slurm native specification — equivalent to the arguments you would pass to `sbatch`.
 
 !!! warning "The leading space in `--drmaa-args` is intentional"
-    The string starts with a space: `" -p ..."`. The DRMAA library internally prepends a job script name before this string. Without the leading space, the first SLURM flag runs directly into that name, producing a malformed submission. Do not remove it.
+    The string starts with a space: `" -p ..."`. The DRMAA library internally prepends a job script name before this string. Without the leading space, the first Slurm flag runs directly into that name, producing a malformed submission. Do not remove it.
 
 ### `--latency-wait` and GPFS
 
@@ -150,7 +150,7 @@ Note that the line was commented out in the example — uncomment it for product
 
 ## `localrules` — rules that should not be submitted
 
-Some rules are so fast and lightweight that submitting them to SLURM is wasteful — the queuing overhead would dwarf the actual computation. Declare them as local at the top of the Snakefile:
+Some rules are so fast and lightweight that submitting them to Slurm is wasteful — the queuing overhead would dwarf the actual computation. Declare them as local at the top of the Snakefile:
 
 ```python title="Snakefile"
 localrules: all
@@ -159,7 +159,7 @@ localrules: all
 `rule all` has no shell command and should always be local. If you have a rule that only creates a directory, writes a small config file, or copies a tiny file, make it local too.
 
 !!! note-sticky "Local rules run on the login node"
-    Local rules execute directly in the Snakemake process on the login node, with no SLURM submission. Keep them genuinely lightweight — no alignment, no sorting, no compression.
+    Local rules execute directly in the Snakemake process on the login node, with no Slurm submission. Keep them genuinely lightweight — no alignment, no sorting, no compression.
 
 ## Log directory setup
 
@@ -170,10 +170,10 @@ Create the DRMAA log directory before running:
 mkdir -p logs/drmaa
 ```
 
-SLURM writes per-job stdout and stderr to `logs/drmaa/job_%j.out` and `logs/drmaa/job_%j.err` (where `%j` is the SLURM job ID). These are distinct from your rule-level `log:` files, which capture the tool's own output. When debugging a failure, check both:
+Slurm writes per-job stdout and stderr to `logs/drmaa/job_%j.out` and `logs/drmaa/job_%j.err` (where `%j` is the Slurm job ID). These are distinct from your rule-level `log:` files, which capture the tool's own output. When debugging a failure, check both:
 
 - **Rule log** (`logs/hisat2/SRR014335.log`) — what the tool printed
-- **DRMAA job log** (`logs/drmaa/job_12345678.err`) — what SLURM saw (out of memory, time limit, etc.)
+- **DRMAA job log** (`logs/drmaa/job_12345678.err`) — what Slurm saw (out of memory, time limit, etc.)
 
 ## Running the pipeline
 
@@ -254,7 +254,7 @@ Commit `profiles/drmaa/config.yaml` to your repository. Collaborators running th
 ## Key takeaways
 
 !!! success "Episode 4 summary"
-    - **`threads:`** maps to `--cpus-per-task`; **`resources:`** (mem_mb, runtime, partition) maps to the corresponding SLURM flags.
+    - **`threads:`** maps to `--cpus-per-task`; **`resources:`** (mem_mb, runtime, partition) maps to the corresponding Slurm flags.
     - The `--drmaa-args` string is a per-job template filled with `{resources.X}` and `{threads}` at submission time.
     - **`--jobs`** caps the number of concurrently running cluster jobs.
     - **`--latency-wait`** compensates for GPFS file propagation delay — 30 seconds is appropriate on BMRC.
