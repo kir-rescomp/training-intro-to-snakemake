@@ -52,8 +52,8 @@ samples:
   - SRR014341
 
 genome:
-  hisat2_index: /well/kir/references/hg38/hisat2/genome
-  gtf: /well/kir/references/hg38/gencode.v44.annotation.gtf
+  hisat2_index: references/
+  gtf: references/Saccharomyces_cerevisiae.R64-1-1.99.gtf
 
 threads:
   fastqc: 2
