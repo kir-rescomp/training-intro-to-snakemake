@@ -54,16 +54,16 @@ When a rule produces or consumes multiple files, use **named** inputs and output
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}.fastq",
+        "data/{sample}.fastq",
 
     output:
-        r1="results/trimmed/{sample}.fastq",
+        fastq="results/trimmed/{sample}.fastq",
         html="results/fastp/{sample}_fastp.html"
     shell:
         """
         fastp \
-            -i {input.r1} \
-            -o {output.r1} \
+            -i {input} \
+            -o {output} \
             --html {output.html}
         """
 ```
@@ -108,7 +108,7 @@ SAMPLES = ["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR
 rule all:
     input:
         expand("results/fastqc/{sample}_{read}_fastqc.html",
-               sample=SAMPLES,
+               sample=SAMPLES)
 ```
 </div>
 
@@ -139,8 +139,8 @@ snakemake --rulegraph | dot -Tsvg > rulegraph.svg
 
 The rule graph shows one node per rule — the logical structure without per-sample repetition. This is the view to put in papers and README files.
 
-!!! note-sticky "Graphviz must be installed"
-    `dot` is part of the Graphviz package. On BMRC, load it with `module load Graphviz/...` before running these commands.
+!!! note-sticky "Snakemake DAG Rendering "
+    - On BMRC, DAG rendering works out of the box because Graphviz’s dot is already installed. On other systems, Graphviz must be available separately before converting Snakemake’s DAG output into an image.”
 
 ## Dry-run revisited
 
@@ -192,6 +192,18 @@ snakemake --summary
     5. **Bonus:** Render the DAG with `--dag | dot -Tsvg > dag.svg` and inspect it.
 
     ??? success "Solution"
+
+        * Creating the directories and files
+        
+        <div class="github-dark" markdown="1">
+        ```py
+        mkdir -p ep02/input/{a,b,c} && \
+        for d in a b c; do
+            printf "alpha\nbeta\ngamma\n" > "ep02/input/$d/reads.txt"
+        done
+        ```
+        </div>
+        <br>
         <div class="snakefile" markdown="1">
         ```python title="Snakefile"
         DATASETS = ["a", "b", "c"]

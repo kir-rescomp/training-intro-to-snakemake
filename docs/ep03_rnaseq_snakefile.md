@@ -16,8 +16,8 @@ The inputs are paired-end FASTQ files. The final output is a single counts matri
 
 Before writing a single rule, establish a clean directory structure:
 
-<div class="dracula" markdown="1">
-```rust
+<div class="github-dark" markdown="1">
+```py
 rnaseq_pipeline/
 ├── Snakefile
 ├── config.yaml
@@ -27,7 +27,7 @@ rnaseq_pipeline/
 │   ├── SRR014337.fastq
 │   ├── SRR014339.fastq
 │   ├── SRR014340.fastq
-│   └── SRR014341.fastq'
+│   └── SRR014341.fastq
 ├── logs/
 └── results/
 ```
@@ -52,8 +52,8 @@ samples:
   - SRR014341
 
 genome:
-  hisat2_index: /well/kir/references/hg38/hisat2/genome
-  gtf: /well/kir/references/hg38/gencode.v44.annotation.gtf
+  hisat2_index: references/
+  gtf: references/Saccharomyces_cerevisiae.R64-1-1.99.gtf
 
 threads:
   fastqc: 2
@@ -79,6 +79,7 @@ After this, `config` is a standard Python dictionary. Changing the sample list i
 
 Define all desired final outputs upfront. This forces you to be explicit about what the pipeline produces, and gives Snakemake an unambiguous target to plan backwards from.
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule all:
     input:
@@ -90,6 +91,7 @@ rule all:
         # Final counts matrix
         "results/counts/all_samples.counts.txt"
 ```
+</div>
 
 ## Rule by rule
 
