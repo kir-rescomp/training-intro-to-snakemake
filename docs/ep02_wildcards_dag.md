@@ -108,7 +108,7 @@ SAMPLES = ["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR
 rule all:
     input:
         expand("results/fastqc/{sample}_{read}_fastqc.html",
-               sample=SAMPLES,
+               sample=SAMPLES)
 ```
 </div>
 
