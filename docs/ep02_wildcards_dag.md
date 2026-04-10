@@ -78,8 +78,7 @@ A wildcard rule can produce outputs for any sample, but `rule all` needs to name
 <div class="dracula" markdown="1">
 ```python
 expand("results/fastqc/{sample}_fastqc.html",
-       sample=["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR014341"],
-       read=["R1", "R2"])
+       sample=["SRR014335", "SRR014336", "SRR014337", "SRR014339", "SRR014340", "SRR014341"])
 ```
 
 
