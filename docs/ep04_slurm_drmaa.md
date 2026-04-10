@@ -25,6 +25,7 @@ Always declare `threads:` on any rule that benefits from parallelism, and pass `
 
 `resources:` declares the per-job requirements that the executor plugin reads when constructing the SLURM submission:
 
+<div class="dracula" markdown="1">
 ```python
 rule hisat2:
     threads: 8
@@ -33,6 +34,7 @@ rule hisat2:
         runtime=120,     # wall time in minutes — passed as --time
         partition="short"
 ```
+</div>
 
 These values are not used in the shell command. They exist solely for the scheduler.
 
