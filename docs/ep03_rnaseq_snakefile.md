@@ -83,7 +83,7 @@ Define all desired final outputs upfront. This forces you to be explicit about w
 rule all:
     input:
         # FastQC reports — one HTML per sample per read direction
-        expand("results/fastqc/{sample}_{read}_fastqc.html",
+        expand("results/fastqc/{sample}_fastqc.html",
                sample=SAMPLES ),
         # fastp QC reports
         expand("results/fastp/{sample}_fastp.html", sample=SAMPLES),
@@ -123,9 +123,9 @@ Two new directives appear here.
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}.fastq",
+        "data/{sample}.fastq",
     output:
-        r1=temp("results/trimmed/{sample}.fastq"),
+        fastq=temp("results/trimmed/{sample}.fastq"),
         html="results/fastp/{sample}_fastp.html",
         json="results/fastp/{sample}_fastp.json"
     log:
@@ -153,7 +153,7 @@ The HTML and JSON reports are *not* marked `temp()` — you want to keep those f
 ```python title="Snakefile"
 rule hisat2:
     input:
-        r1="results/trimmed/{sample}.fastq",
+        "results/trimmed/{sample}.fastq",
 
     output:
         bam=protected("results/bam/{sample}.sorted.bam"),
@@ -162,13 +162,13 @@ rule hisat2:
         "logs/hisat2/{sample}.log"
     params:
         index=config["genome"]["hisat2_index"],
-        extra="--dta --rna-strandness RF"
+        extra="--dta"
     threads: config["threads"]["hisat2"]
     shell:
         """
         hisat2 \
             -x {params.index} \
-            -1 {input.r1} -2 {input.r2} \
+            -U {input} \
             --threads {threads} \
             {params.extra} \
             2> {log} \
@@ -232,8 +232,8 @@ localrules: all
 
 rule all:
     input:
-        expand("results/fastqc/{sample}_{read}_fastqc.html",
-               sample=SAMPLES, read=["R1", "R2"]),
+        expand("results/fastqc/{sample}_fastqc.html",
+               sample=SAMPLES,
         expand("results/fastp/{sample}_fastp.html", sample=SAMPLES),
         "results/counts/all_samples.counts.txt"
 
@@ -242,10 +242,10 @@ rule fastqc:
     input:
         "data/{sample}_{read}.fastq"
     output:
-        html="results/fastqc/{sample}_{read}_fastqc.html",
-        zip="results/fastqc/{sample}_{read}_fastqc.zip"
+        html="results/fastqc/{sample}_fastqc.html",
+        zip="results/fastqc/{sample}_fastqc.zip"
     log:
-        "logs/fastqc/{sample}_{read}.log"
+        "logs/fastqc/{sample}.log"
     threads: config["threads"]["fastqc"]
     shell:
         "fastqc {input} --outdir results/fastqc/ --threads {threads} &> {log}"
@@ -253,11 +253,9 @@ rule fastqc:
 
 rule fastp:
     input:
-        r1="data/{sample}_R1.fastq",
-        r2="data/{sample}_R2.fastq"
+        "data/{sample}.fastq",
     output:
-        r1=temp("results/trimmed/{sample}_R1.fastq"),
-        r2=temp("results/trimmed/{sample}_R2.fastq"),
+        fastq=temp("results/trimmed/{sample}_R1.fastq"),
         html="results/fastp/{sample}_fastp.html",
         json="results/fastp/{sample}_fastp.json"
     log:
@@ -266,8 +264,8 @@ rule fastp:
     shell:
         """
         fastp \
-            -i {input.r1} -I {input.r2} \
-            -o {output.r1} -O {output.r2} \
+            -i {input} \
+            -o {output} \
             --html {output.html} --json {output.json} \
             --thread {threads} \
             2> {log}
@@ -276,7 +274,7 @@ rule fastp:
 
 rule hisat2:
     input:
-        r1="results/trimmed/{sample}_R1.fastq",
+        "results/trimmed/{sample}.fastq",
 
     output:
         bam=protected("results/bam/{sample}.sorted.bam"),
@@ -285,13 +283,13 @@ rule hisat2:
         "logs/hisat2/{sample}.log"
     params:
         index=config["genome"]["hisat2_index"],
-        extra="--dta --rna-strandness RF"
+        extra="--dta"
     threads: config["threads"]["hisat2"]
     shell:
         """
         hisat2 \
             -x {params.index} \
-            -1 {input.r1} -2 {input.r2} \
+            -U {input} \
             --threads {threads} \
             {params.extra} \
             2> {log} \
@@ -359,8 +357,8 @@ snakemake --cores 8
         ```python
         rule multiqc:
             input:
-                fastqc=expand("results/fastqc/{sample}_{read}_fastqc.zip",
-                              sample=SAMPLES, read=["R1", "R2"]),
+                fastqc=expand("results/fastqc/{sample}_fastqc.zip",
+                              sample=SAMPLES),
                 fastp=expand("results/fastp/{sample}_fastp.json", sample=SAMPLES)
             output:
                 "results/multiqc/multiqc_report.html"
