@@ -1,4 +1,4 @@
-# Introduction to Snakemake
+<h1 align="center">Introduction to Snakemake</h1>
 
 
 <p align="center">
