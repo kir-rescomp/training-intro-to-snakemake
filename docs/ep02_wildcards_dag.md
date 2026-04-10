@@ -192,6 +192,18 @@ snakemake --summary
     5. **Bonus:** Render the DAG with `--dag | dot -Tsvg > dag.svg` and inspect it.
 
     ??? success "Solution"
+
+        * Creating the directories and files
+        
+        <div class="github-dark" markdown="1">
+        ```py
+        mkdir -p ep02/input/{a,b,c} && \
+        for d in a b c; do
+            printf "alpha\nbeta\ngamma\n" > "ep02/input/$d/reads.txt"
+        done
+        ```
+        </div>
+        <br>
         <div class="snakefile" markdown="1">
         ```python title="Snakefile"
         DATASETS = ["a", "b", "c"]
