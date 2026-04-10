@@ -53,7 +53,6 @@
     ```
     </div>
 
-The pipeline is driven by a single `config.yaml` — adding a new sample is a one-line edit.
 
 ## Episodes
 
