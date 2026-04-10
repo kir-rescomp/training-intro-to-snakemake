@@ -1,4 +1,4 @@
-# Episode 4: Scaling to the Cluster — Slurm via DRMAA
+# Episode 4: Scaling to the Cluster 
 
 ## From laptop to HPC
 
@@ -82,6 +82,10 @@ rule featurecounts:
         partition="short"
 ```
 </div>
+
+
+
+
 
 ## The DRMAA executor
 
