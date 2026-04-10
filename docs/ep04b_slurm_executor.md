@@ -88,3 +88,40 @@ rule hisat2:
         slurm_extra="--output=logs/slurm/hisat2_{sample}_%j.out --error=logs/slurm/hisat2_{sample}_%j.err"
 ```
 </div>
+
+
+Or set a blanket default in the profile (see below). Create the directory first:
+
+```
+mkdir -p logs/slurm
+```
+
+#### Workflow profile
+
+```
+executor: slurm
+jobs: 6
+default-resources:
+  - mem_mb=1000
+  - runtime=5
+  - slurm_partition=short
+latency-wait: 30
+printshellcmds: true
+rerun-incomplete: true
+keep-going: true
+```
+
+Run with:
+
+```
+# Dry run
+snakemake --workflow-profile profiles/slurm -n -p
+
+# For real, inside tmux
+snakemake --workflow-profile profiles/slurm
+```
+
+#### What SLURM is actually submitting
+
+With `-p` active you'll see the resolved shell command per job. To inspect the raw `sbatch` call, check 
+Snakemake's output — it prints the job ID on submission:
