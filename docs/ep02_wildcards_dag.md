@@ -54,16 +54,16 @@ When a rule produces or consumes multiple files, use **named** inputs and output
 ```python title="Snakefile"
 rule fastp:
     input:
-        r1="data/{sample}.fastq",
+        "data/{sample}.fastq",
 
     output:
-        r1="results/trimmed/{sample}.fastq",
+        fastq="results/trimmed/{sample}.fastq",
         html="results/fastp/{sample}_fastp.html"
     shell:
         """
         fastp \
-            -i {input.r1} \
-            -o {output.r1} \
+            -i {input} \
+            -o {output} \
             --html {output.html}
         """
 ```
