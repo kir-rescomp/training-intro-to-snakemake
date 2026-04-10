@@ -14,3 +14,36 @@
 
     If your cluster supports DRMAA and you want fine-grained control over the submission string, use DRMAA. If you 
     want something simpler that works out of the box on any Slurm system, use the Slurm executor.
+
+
+## Resources in the Snakefile
+
+The Slurm executor reads directly from the `resources:` block. The key difference from the DRMAA setup is the partition key — it must be `slurm_partition` rather than `partition`:
+
+<div class="snakefile" markdown="1">
+
+```py
+rule fastp:
+    threads: config["threads"]["fastp"]
+    resources:
+        mem_mb=8000,
+        runtime=60,
+        slurm_partition="short"
+
+rule hisat2:
+    threads: config["threads"]["hisat2"]
+    resources:
+        mem_mb=32000,
+        runtime=120,
+        slurm_partition="short"
+
+rule featurecounts:
+    threads: config["threads"]["featurecounts"]
+    resources:
+        mem_mb=8000,
+        runtime=60,
+        slurm_partition="short"
+```
+</div>
+
+`threads` is mapped to `--cpus-per-task` automatically — you don't need to wire it up manually as you do in the DRMAA args string.
