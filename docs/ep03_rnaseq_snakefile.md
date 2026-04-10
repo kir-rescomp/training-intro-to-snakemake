@@ -16,8 +16,8 @@ The inputs are paired-end FASTQ files. The final output is a single counts matri
 
 Before writing a single rule, establish a clean directory structure:
 
-<div class="dracula" markdown="1">
-```rust
+<div class="github-dark" markdown="1">
+```py
 rnaseq_pipeline/
 ├── Snakefile
 ├── config.yaml
@@ -27,7 +27,7 @@ rnaseq_pipeline/
 │   ├── SRR014337.fastq
 │   ├── SRR014339.fastq
 │   ├── SRR014340.fastq
-│   └── SRR014341.fastq'
+│   └── SRR014341.fastq
 ├── logs/
 └── results/
 ```
