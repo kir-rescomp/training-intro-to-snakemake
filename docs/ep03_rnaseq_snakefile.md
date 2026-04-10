@@ -357,8 +357,8 @@ snakemake --cores 8
         ```python
         rule multiqc:
             input:
-                fastqc=expand("results/fastqc/{sample}_{read}_fastqc.zip",
-                              sample=SAMPLES, read=["R1", "R2"]),
+                fastqc=expand("results/fastqc/{sample}_fastqc.zip",
+                              sample=SAMPLES),
                 fastp=expand("results/fastp/{sample}_fastp.json", sample=SAMPLES)
             output:
                 "results/multiqc/multiqc_report.html"
