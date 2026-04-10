@@ -62,3 +62,29 @@ snakemake \
 ```
 
 That's it. No `--drmaa-args` template to maintain.
+
+
+| Flag                      | Purpose                                                 |
+| ------------------------- | ------------------------------------------------------- |
+| `--executor slurm`        | Activate the SLURM executor plugin                      |
+| `--jobs 6`                | Max concurrent cluster jobs                             |
+| `--default-resources ...` | Fallback values for rules without explicit `resources:` |
+| `--latency-wait 30`       | Wait for GPFS file propagation after job exit           |
+| `-p`                      | Print resolved shell command per job                    |
+
+
+## Controlling log file location
+
+By default the SLURM executor writes job logs to the working directory with auto-generated names. To match the 
+organised `logs/slurm/` layout, add `slurm_extra` to your resources:
+
+<div class="dracula" markdown="1">
+```py
+rule hisat2:
+    resources:
+        mem_mb=32000,
+        runtime=120,
+        slurm_partition="short",
+        slurm_extra="--output=logs/slurm/hisat2_{sample}_%j.out --error=logs/slurm/hisat2_{sample}_%j.err"
+```
+</div>
