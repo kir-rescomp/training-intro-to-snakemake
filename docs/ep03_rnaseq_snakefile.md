@@ -79,6 +79,7 @@ After this, `config` is a standard Python dictionary. Changing the sample list i
 
 Define all desired final outputs upfront. This forces you to be explicit about what the pipeline produces, and gives Snakemake an unambiguous target to plan backwards from.
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 rule all:
     input:
@@ -90,6 +91,7 @@ rule all:
         # Final counts matrix
         "results/counts/all_samples.counts.txt"
 ```
+</div>
 
 ## Rule by rule
 
