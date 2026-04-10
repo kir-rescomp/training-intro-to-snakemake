@@ -47,3 +47,18 @@ rule featurecounts:
 </div>
 
 `threads` is mapped to `--cpus-per-task` automatically — you don't need to wire it up manually as you do in the DRMAA args string.
+
+### Ths submission command 
+
+<div class="dracula" markdown="1">
+
+```py
+snakemake \
+  --executor slurm \
+  --jobs 6 \
+  --default-resources mem_mb=1000 runtime=5 slurm_partition=short \
+  --latency-wait 30 \
+  -p
+```
+
+That's it. No `--drmaa-args` template to maintain.
