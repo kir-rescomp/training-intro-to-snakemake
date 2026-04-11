@@ -121,6 +121,7 @@ snakemake --workflow-profile profiles/slurm -n -p
 snakemake --workflow-profile profiles/slurm
 ```
 </div>
+
 #### What SLURM is actually submitting
 
 With `-p` active you'll see the resolved shell command per job. To inspect the raw `sbatch` call, check 
