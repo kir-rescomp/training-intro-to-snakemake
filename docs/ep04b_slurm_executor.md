@@ -1,21 +1,6 @@
 # Episode 4b:Running on the Cluster — Slurm Executor
 
 
-
-|                             | DRMAA                                 | Slurm executor                         |
-| ----------------------------| ------------------------------------- | -------------------------------------- |
-| **Mechanism**               | C API (DRMAA library)                 | Direct `sbatch` calls                  |
-| **Installation dependency** | `python-drmaa` + cluster DRMAA lib    | `snakemake-executor-plugin-Slurm` only |
-| **Resource mapping**        | Manual template string                | Automatic from `resources:`            |
-| **Portability**             | Requires DRMAA support on the cluster | Works on any Slurm cluster             |
-
-
-!!! circle-info "When to chose DRMAA vs Slurm executor"
-
-    If your cluster supports DRMAA and you want fine-grained control over the submission string, use DRMAA. If you 
-    want something simpler that works out of the box on any Slurm system, use the Slurm executor.
-
-
 ## Resources in the Snakefile
 
 The Slurm executor reads directly from the `resources:` block. The key difference from the DRMAA setup is the partition key — it must be `slurm_partition` rather than `partition`:
@@ -92,13 +77,13 @@ rule hisat2:
 
 Or set a blanket default in the profile (see below). Create the directory first:
 
-```
+```py
 mkdir -p logs/slurm
 ```
 
 #### Workflow profile
 
-```
+```py
 executor: slurm
 jobs: 6
 default-resources:
@@ -113,13 +98,14 @@ keep-going: true
 
 Run with:
 
-```
+```py
 # Dry run
 snakemake --workflow-profile profiles/slurm -n -p
 
 # For real, inside tmux
 snakemake --workflow-profile profiles/slurm
 ```
+</div>
 
 #### What SLURM is actually submitting
 
