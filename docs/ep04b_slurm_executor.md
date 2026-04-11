@@ -92,13 +92,13 @@ rule hisat2:
 
 Or set a blanket default in the profile (see below). Create the directory first:
 
-```
+```py
 mkdir -p logs/slurm
 ```
 
 #### Workflow profile
 
-```
+```py
 executor: slurm
 jobs: 6
 default-resources:
@@ -113,14 +113,14 @@ keep-going: true
 
 Run with:
 
-```
+```py
 # Dry run
 snakemake --workflow-profile profiles/slurm -n -p
 
 # For real, inside tmux
 snakemake --workflow-profile profiles/slurm
 ```
-
+</div>
 #### What SLURM is actually submitting
 
 With `-p` active you'll see the resolved shell command per job. To inspect the raw `sbatch` call, check 
