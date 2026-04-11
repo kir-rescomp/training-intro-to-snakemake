@@ -272,7 +272,7 @@ Commit `profiles/drmaa/config.yaml` to your repository. Collaborators running th
 
 ## Key takeaways
 
-!!! success "Episode 4 summary"
+!!! clipboard-list "Episode 4 summary"
     - **`threads:`** maps to `--cpus-per-task`; **`resources:`** (mem_mb, runtime, partition) maps to the corresponding Slurm flags.
     - The `--drmaa-args` string is a per-job template filled with `{resources.X}` and `{threads}` at submission time.
     - **`--jobs`** caps the number of concurrently running cluster jobs.
