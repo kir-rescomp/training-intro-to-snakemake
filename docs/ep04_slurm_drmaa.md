@@ -161,9 +161,11 @@ The BMRC cluster uses GPFS, a distributed parallel file system. After a compute 
 
 Any rule without explicit `resources:` will fall back to these values. This prevents a submission error if you add a new rule and forget to declare resources:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 --default-resources mem_mb=1000 runtime=5 partition=short
 ```
+</div>
 
 Note that the line was commented out in the example — uncomment it for production use. Rules with their own `resources:` block are not affected by `--default-resources`.
 
@@ -171,9 +173,11 @@ Note that the line was commented out in the example — uncomment it for product
 
 Some rules are so fast and lightweight that submitting them to Slurm is wasteful — the queuing overhead would dwarf the actual computation. Declare them as local at the top of the Snakefile:
 
+<div class="snakefile" markdown="1">
 ```python title="Snakefile"
 localrules: all
 ```
+</div>
 
 `rule all` has no shell command and should always be local. If you have a rule that only creates a directory, writes a small config file, or copies a tiny file, make it local too.
 
