@@ -1,7 +1,7 @@
 .catalog-return {
   position: fixed;
-  top: 80px;
-  right: 130px;
+  top: 90px;
+  right: 260px;
   z-index: 1000;
 }
 
