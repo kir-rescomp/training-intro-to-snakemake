@@ -47,6 +47,8 @@ Add `benchmark:` to every slow rule — alignment, quantification, trimming. Lig
 You have been using `log:` throughout. A few patterns worth standardising before running production pipelines:
 
 **Capture stderr only (for tools that stream results to stdout):**
+
+<div class="dracula" markdown="1">
 ```python
 shell:
     "hisat2 ... 2> {log} | samtools sort -o {output.bam}"
@@ -64,7 +66,7 @@ shell:
 shell:
     "hisat2 ... | samtools sort -o {output.bam} &> {log}"
 ```
-
+</div>
 Test redirect behaviour on a small file before scaling up. A zero-byte output with a log full of SAM data is a reliable sign of this mistake.
 
 ## Handling failures gracefully
@@ -160,18 +162,18 @@ Snakemake creates each environment on first use and caches it. The YAML file liv
 
 Before any cluster run, work through this list:
 
-```
-[ ] rule all lists every desired final output
-[ ] Every computational rule has: input, output, log, threads, resources
-[ ] benchmark: added to slow rules (alignment, trimming, quantification)
-[ ] wildcard_constraints: defined for all wildcards used across rules
-[ ] localrules: all (plus any other trivial rules)
-[ ] logs/drmaa/ directory exists
-[ ] --dry-run passes cleanly with no errors or warnings
-[ ] --rulegraph renders the expected structure
-[ ] Running inside tmux or screen
-[ ] --rerun-incomplete and --keep-going included in the run command
-```
+
+- [ ] rule all lists every desired final output
+- [ ] Every computational rule has: input, output, log, threads, resources
+- [ ] benchmark: added to slow rules (alignment, trimming, quantification)
+- [ ] wildcard_constraints: defined for all wildcards used across rules
+- [ ] localrules: all (plus any other trivial rules)
+- [ ] logs/drmaa/ directory exists
+- [ ] `--dry-run` passes cleanly with no errors or warnings
+- [ ] `--rulegraph` renders the expected structure
+- [ ] Running inside tmux or screen
+- [ ] `--rerun-incomplete` and `--keep-going` included in the run command
+
 
 ## Common pitfalls
 
@@ -230,6 +232,7 @@ Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["p
     4. Run a final dry-run with `--workflow-profile profiles/drmaa -n -p` and confirm everything looks correct.
 
     ??? success "benchmark with {rule} wildcard"
+        <div class="snakefile" markdown="1">
         ```python
         rule fastqc:
             benchmark: "benchmarks/{rule}/{sample}_{read}.tsv"
@@ -244,6 +247,7 @@ Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["p
             ...
         ```
         Note that `{rule}` is a special keyword — it is not a user-defined wildcard and does not need to appear in `output:`.
+        </div>
 
 ---
 
