@@ -243,9 +243,9 @@ drmaa-args: " -p {resources.partition} --mem={resources.mem_mb} --cpus-per-task=
 drmaa-log-dir: logs/drmaa
 jobs: 14
 default-resources:
-  - mem_mb=1000
-  - runtime=5
-  - partition=short
+  mem_mb: 1000
+  runtime: 5
+  partition: short
 latency-wait: 30
 printshellcmds: true
 ```
@@ -257,6 +257,8 @@ Run with:
 snakemake --workflow-profile profiles/drmaa
 ```
 </div>
+
+!!! quote "Snakemake looks at current working diretory for `profiles` . If it is not in `CWD` , provide the absolute path .i.e. `--workflow-profile /absolute/path/to/profiles/drmaa`"
 
 Commit `profiles/drmaa/config.yaml` to your repository. Collaborators running the same pipeline on BMRC use the same profile with no flags to remember.
 
