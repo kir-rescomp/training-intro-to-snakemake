@@ -95,7 +95,8 @@ In other words, out of the box Snakemake 9 *does* detect changes to a rule's par
 
 You can inspect *why* Snakemake wants to rerun something:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 # List jobs whose code changed since the last run
 snakemake --list-changes code [other flags]
 
@@ -105,15 +106,16 @@ snakemake --list-changes params [other flags]
 
 If you want the old timestamp-only behaviour (for example to avoid a large rerun after a trivial edit), restrict the triggers explicitly:
 
-```bash
+```py
 snakemake --rerun-triggers mtime [other flags]
 ```
+
 
 ### `--rerun-incomplete`
 
 If a job is killed mid-run — out of memory, walltime exceeded, node failure — the output file may be partially written. Snakemake marks such outputs as *incomplete* in its metadata, but it will not act on that unless told to. On the next run, without this flag, it may treat the file as present and the rule as done, which is wrong.
 
-```bash
+```py
 snakemake --rerun-incomplete [other flags]
 ```
 
@@ -123,7 +125,7 @@ This flag forces Snakemake to rerun any jobs whose outputs are recorded as incom
 
 By default, Snakemake stops submitting new jobs when any job fails. With `--keep-going`, it continues submitting independent branches of the DAG even when one branch has failed:
 
-```bash
+```py
 snakemake --keep-going [other flags]
 ```
 
@@ -135,9 +137,10 @@ Even though Snakemake 9 detects most meaningful changes automatically, you somet
 
 Force a rerun of a specific rule and all downstream rules:
 
-```bash
+```py
 snakemake -R hisat2 [other flags]
 ```
+</div>
 
 !!! tip "When you still need `-R` in Snakemake 9"
     The default `--rerun-triggers` cover params, input, code, and software-env. Cases where you may still want `-R` explicitly: a change to a file Snakemake doesn't track as an input (e.g. a shared reference outside the workflow), forcing a clean reproduction, or when you have deliberately restricted triggers to `mtime`.
@@ -165,7 +168,7 @@ rule hisat2:
     ...
 ```
 
-</div>
+
 
 For the RNA-seq pipeline in this workshop, adding global constraints for `sample` and `read` prevents any ambiguous matching between the `{sample}_{read}` pattern in `fastqc` and the `{sample}` pattern in `fastp`.
 
@@ -178,7 +181,9 @@ rule fastp:
     conda: "envs/fastp.yaml"
     ...
 ```
+</div>
 
+<div class="github-dark" markdown="1">
 ```yaml title="envs/fastp.yaml"
 channels:
   - bioconda
@@ -186,14 +191,17 @@ channels:
 dependencies:
   - fastp=0.23.4
 ```
+</div>
 
 Activate it with the software-deployment-method flag:
 
-```bash
+<div class="dracula" markdown="1">
+```py
 snakemake --software-deployment-method conda [other flags]
 # short form:
 snakemake --sdm conda [other flags]
 ```
+</div>
 
 !!! warning "`--use-conda` is the old spelling"
     Pre-8 Snakemake used `--use-conda` and `--use-singularity`. In Snakemake 9 these are superseded by `--software-deployment-method` (alias `--sdm`), which takes one or more of `conda`, `apptainer`, and `env-modules`. The old flags may still alias through but should not be taught for 9.16+; use `--sdm`.
