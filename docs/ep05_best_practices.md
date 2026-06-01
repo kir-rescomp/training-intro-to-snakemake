@@ -203,8 +203,6 @@ snakemake --sdm conda [other flags]
 ```
 </div>
 
-!!! warning "`--use-conda` is the old spelling"
-    Pre-8 Snakemake used `--use-conda` and `--use-singularity`. In Snakemake 9 these are superseded by `--software-deployment-method` (alias `--sdm`), which takes one or more of `conda`, `apptainer`, and `env-modules`. The old flags may still alias through but should not be taught for 9.16+; use `--sdm`.
 
 Snakemake creates each environment on first use and caches it. The YAML file lives in your repository — a reviewer or collaborator can recreate the exact software environment years later.
 
@@ -245,6 +243,7 @@ Before any cluster run, work through this list:
 
 **Snakemake wrappers** — [snakemake-wrappers.readthedocs.io](https://snakemake-wrappers.readthedocs.io/) provides pre-written, tested rule wrappers for hundreds of bioinformatics tools (FastQC, STAR, DESeq2, samtools, and many more). A wrapper replaces the `shell:` block with a single `wrapper:` directive and a version tag:
 
+<div class="snakefile" markdown="1">
 ```python
 rule fastqc:
     input: "data/{sample}_{read}.fastq.gz"
@@ -265,6 +264,7 @@ rule plot_pca:
     output: "results/pca.pdf"
     script: "scripts/plot_pca.R"
 ```
+</div>
 
 Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["pdf"]]`, and so on.
 
