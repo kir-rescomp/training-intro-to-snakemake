@@ -1,0 +1,1370 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="The Kennedy Institute of Rheumatology, NDORMS, University of Oxford">
+      
+      
+        <link rel="canonical" href="https://kir-rescomp.github.io/training-intro-to-snakemake/ep04_slurm_drmaa/">
+      
+      
+        <link rel="prev" href="../ep03_rnaseq_snakefile/">
+      
+      
+        <link rel="next" href="../ep04b_slurm_executor/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../images/kir_standalone_logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Episode 4a: Scaling to the Cluster : Slurm via DRMAA - Introduction to Snakemake</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,300i,400,400i,700,700i%7CFira+Code:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Mukta";--md-code-font:"Fira Code"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../stylesheets/catalogue-return-button.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_dracula.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_monokai.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_github_dark.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_nord.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_onedark.css">
+    
+      <link rel="stylesheet" href="../stylesheets/side_bar_menu.css">
+    
+      <link rel="stylesheet" href="../stylesheets/snakefile.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#episode-4a-scaling-to-the-cluster-slurm-via-drmaa" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Introduction to Snakemake" class="md-header__button md-logo" aria-label="Introduction to Snakemake" data-md-component="logo">
+      
+  <img src="../images/KIR_Research_Computing_Hub_layered_logo_favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Introduction to Snakemake
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Episode 4a: Scaling to the Cluster : Slurm via DRMAA
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo" aria-label="Switch to light mode" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo" aria-label="Switch to dark mode" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo" aria-label="Switch to system preference" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kir-rescomp/training-intro-to-snakemake" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    kir-rescomp/training-intro-to-snakemake
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Introduction to Snakemake" class="md-nav__button md-logo" aria-label="Introduction to Snakemake" data-md-component="logo">
+      
+  <img src="../images/KIR_Research_Computing_Hub_layered_logo_favicon.svg" alt="logo">
+
+    </a>
+    Introduction to Snakemake
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kir-rescomp/training-intro-to-snakemake" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    kir-rescomp/training-intro-to-snakemake
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep01_motivation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 1: From Shell Scripts to Snakemake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep02_wildcards_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 2: Wildcards, expand(), and the DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep03_rnaseq_snakefile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 3: A Real Snakefile — RNA-seq from Scratch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 4a: Scaling to the Cluster : Slurm via DRMAA
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 4a: Scaling to the Cluster : Slurm via DRMAA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-laptop-to-hpc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From laptop to HPC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-threads-directive-revisited" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The threads: directive — revisited
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-resources-directive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The resources: directive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-resources-to-every-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding resources: to every rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-drmaa-vs-slurm-executor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The DRMAA vs Slurm executor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-drmaa-executor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The DRMAA executor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-submission-command-explained" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The submission command — explained
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The submission command — explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inside-drmaa-args" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inside --drmaa-args
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-latency-wait-and-gpfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --latency-wait and GPFS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-default-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --default-resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#localrules-rules-that-should-not-be-submitted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        localrules — rules that should not be submitted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log-directory-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log directory setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-profiles-the-clean-way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow profiles — the clean way
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise 4
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep04b_slurm_executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 4b:Running on the Cluster — Slurm Executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep05_best_practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 5: Robustness, Best Practices &amp; Going Further
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-laptop-to-hpc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From laptop to HPC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-threads-directive-revisited" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The threads: directive — revisited
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-resources-directive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The resources: directive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-resources-to-every-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding resources: to every rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-drmaa-vs-slurm-executor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The DRMAA vs Slurm executor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-drmaa-executor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The DRMAA executor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-submission-command-explained" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The submission command — explained
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The submission command — explained">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inside-drmaa-args" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inside --drmaa-args
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-latency-wait-and-gpfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --latency-wait and GPFS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-default-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --default-resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#localrules-rules-that-should-not-be-submitted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        localrules — rules that should not be submitted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log-directory-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log directory setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-profiles-the-clean-way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow profiles — the clean way
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise 4
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="episode-4a-scaling-to-the-cluster-slurm-via-drmaa">Episode 4a: Scaling to the Cluster : Slurm via DRMAA<a class="headerlink" href="#episode-4a-scaling-to-the-cluster-slurm-via-drmaa" title="Permanent link">¶</a></h1>
+<h2 id="from-laptop-to-hpc">From laptop to HPC<a class="headerlink" href="#from-laptop-to-hpc" title="Permanent link">¶</a></h2>
+<p>Your Snakefile now describes a complete pipeline. Running it locally is useful for testing on a small dataset, but for real data — 30 samples, 8-thread HISAT2 alignments, 30 GB of FASTQs — you need the cluster.</p>
+<p>You could wrap each rule in an <code>sbatch</code> call. But that reintroduces every problem Snakemake was solving: manual dependency tracking, no reruns logic, no parallel scheduling, no awareness of which jobs failed. Instead, Snakemake can <strong>submit each job to Slurm itself</strong>, using the resource declarations in your rules to construct each submission, respecting dependencies across the graph, and managing the full execution from a single process on the login node.</p>
+<h2 id="the-threads-directive-revisited">The <code>threads:</code> directive — revisited<a class="headerlink" href="#the-threads-directive-revisited" title="Permanent link">¶</a></h2>
+<p><code>threads:</code> does double duty. Locally, it limits how many CPU cores a rule may claim from Snakemake's shared pool. On the cluster, it maps directly to <code>--cpus-per-task</code> in the Slurm submission.</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">rule</span> <span class="n">hisat2</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">threads</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"threads"</span><span class="p">][</span><span class="s2">"hisat2"</span><span class="p">]</span>   <span class="c1"># 8</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">shell</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="s2">"hisat2 ... --threads </span><span class="si">{threads}</span><span class="s2"> ..."</span>
+</code></pre></div>
+</div>
+<p>Always declare <code>threads:</code> on any rule that benefits from parallelism, and pass <code>{threads}</code> to the tool — that way the threads value is consistent between what Slurm allocates and what the tool uses.</p>
+<h2 id="the-resources-directive">The <code>resources:</code> directive<a class="headerlink" href="#the-resources-directive" title="Permanent link">¶</a></h2>
+<p><code>resources:</code> declares the per-job requirements that the executor plugin reads when constructing the Slurm submission:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">rule</span> <span class="n">hisat2</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">threads</span><span class="p">:</span> <span class="mi">8</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">resources</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">mem_mb</span><span class="o">=</span><span class="mi">32000</span><span class="p">,</span>    <span class="c1"># 32 GB — passed as --mem</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="n">runtime</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>     <span class="c1"># wall time in minutes — passed as --time</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">partition</span><span class="o">=</span><span class="s2">"short"</span>
+</code></pre></div>
+</div>
+<p>These values are not used in the shell command. They exist solely for the scheduler.</p>
+<table>
+<thead>
+<tr>
+<th>Resource key</th>
+<th>Unit</th>
+<th>Maps to Slurm flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mem_mb</code></td>
+<td>Megabytes</td>
+<td><code>--mem</code></td>
+</tr>
+<tr>
+<td><code>runtime</code></td>
+<td>Minutes</td>
+<td><code>--time</code></td>
+</tr>
+<tr>
+<td><code>partition</code></td>
+<td>String</td>
+<td><code>-p</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Be honest about resources</p>
+<p>Under-requesting memory gets your job killed by the OOM killer with no useful error message. Over-requesting wastes queue slots and reduces throughput for everyone. Start with generous estimates, then use the <code>benchmark:</code> directive (Episode 5) to collect real peak-memory figures and tune accordingly.</p>
+</div>
+<h2 id="adding-resources-to-every-rule">Adding <code>resources:</code> to every rule<a class="headerlink" href="#adding-resources-to-every-rule" title="Permanent link">¶</a></h2>
+<p>Update the Snakefile from Episode 3:</p>
+<div class="snakefile">
+<div class="highlight"><span class="filename">Snakefile (additions)</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">rule</span> <span class="n">fastqc</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">threads</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"threads"</span><span class="p">][</span><span class="s2">"fastqc"</span><span class="p">]</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">resources</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">mem_mb</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">runtime</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">partition</span><span class="o">=</span><span class="s2">"short"</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">rule</span> <span class="n">fastp</span><span class="p">:</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">threads</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"threads"</span><span class="p">][</span><span class="s2">"fastp"</span><span class="p">]</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">resources</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="n">mem_mb</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="n">runtime</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="n">partition</span><span class="o">=</span><span class="s2">"short"</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="n">rule</span> <span class="n">hisat2</span><span class="p">:</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="n">threads</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"threads"</span><span class="p">][</span><span class="s2">"hisat2"</span><span class="p">]</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="n">resources</span><span class="p">:</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="n">mem_mb</span><span class="o">=</span><span class="mi">32000</span><span class="p">,</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="n">runtime</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="n">partition</span><span class="o">=</span><span class="s2">"short"</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="n">rule</span> <span class="n">featurecounts</span><span class="p">:</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>    <span class="n">threads</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">"threads"</span><span class="p">][</span><span class="s2">"featurecounts"</span><span class="p">]</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>    <span class="n">resources</span><span class="p">:</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="n">mem_mb</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>        <span class="n">runtime</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="n">partition</span><span class="o">=</span><span class="s2">"short"</span>
+</code></pre></div>
+</div>
+<h2 id="the-drmaa-vs-slurm-executor">The DRMAA vs Slurm executor<a class="headerlink" href="#the-drmaa-vs-slurm-executor" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>DRMAA</th>
+<th>Slurm executor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mechanism</strong></td>
+<td>C API (DRMAA library)</td>
+<td>Direct <code>sbatch</code> calls</td>
+</tr>
+<tr>
+<td><strong>Installation dependency</strong></td>
+<td><code>python-drmaa</code> + cluster DRMAA lib</td>
+<td><code>snakemake-executor-plugin-Slurm</code> only</td>
+</tr>
+<tr>
+<td><strong>Resource mapping</strong></td>
+<td>Manual template string</td>
+<td>Automatic from <code>resources:</code></td>
+</tr>
+<tr>
+<td><strong>Portability</strong></td>
+<td>Requires DRMAA support on the cluster</td>
+<td>Works on any Slurm cluster</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition circle-info">
+<p class="admonition-title">When to chose DRMAA vs Slurm executor</p>
+<p>If your cluster supports DRMAA and you want fine-grained control over the submission string, use DRMAA. If you 
+want something simpler that works out of the box on any Slurm system, use the Slurm executor.</p>
+</div>
+<h2 id="the-drmaa-executor">The DRMAA executor<a class="headerlink" href="#the-drmaa-executor" title="Permanent link">¶</a></h2>
+<p>DRMAA (Distributed Resource Management Application API) is a standardised C API for submitting, monitoring, and cancelling jobs on cluster schedulers. Snakemake's DRMAA executor plugin uses this API to submit each job as a proper Slurm job — not via a shell call to <code>sbatch</code>, but through the DRMAA library that Slurm exposes.</p>
+<p>The plugin is <code>snakemake-executor-plugin-drmaa</code>. Once installed (see the installation guide), activate it with:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">executor</span> <span class="n">drmaa</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="the-submission-command-explained">The submission command — explained<a class="headerlink" href="#the-submission-command-explained" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">snakemake</span> \
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  <span class="o">--</span><span class="n">executor</span> <span class="n">drmaa</span> \
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  <span class="o">--</span><span class="n">drmaa</span><span class="o">-</span><span class="n">args</span> <span class="s2">" -p </span><span class="si">{resources.partition}</span><span class="s2"> --mem=</span><span class="si">{resources.mem_mb}</span><span class="s2"> --cpus-per-task=</span><span class="si">{threads}</span><span class="s2"> --time=00:</span><span class="si">{resources.runtime}</span><span class="s2">:00 --output=logs/drmaa/job_%j.out --error=logs/drmaa/job_%j.err"</span> \
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  <span class="o">--</span><span class="n">drmaa</span><span class="o">-</span><span class="n">log</span><span class="o">-</span><span class="nb">dir</span> <span class="n">logs</span><span class="o">/</span><span class="n">drmaa</span> \
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  <span class="o">--</span><span class="n">jobs</span> <span class="mi">14</span> \
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  <span class="o">--</span><span class="n">default</span><span class="o">-</span><span class="n">resources</span> <span class="n">mem_mb</span><span class="o">=</span><span class="mi">1000</span> <span class="n">runtime</span><span class="o">=</span><span class="mi">5</span> <span class="n">partition</span><span class="o">=</span><span class="n">short</span> \
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  <span class="o">--</span><span class="n">latency</span><span class="o">-</span><span class="n">wait</span> <span class="mi">30</span> \
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  <span class="o">-</span><span class="n">p</span>
+</code></pre></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--executor drmaa</code></td>
+<td>Activate the DRMAA executor plugin</td>
+</tr>
+<tr>
+<td><code>--drmaa-args "..."</code></td>
+<td>Native Slurm options passed per job; placeholders filled at runtime</td>
+</tr>
+<tr>
+<td><code>--drmaa-log-dir logs/drmaa</code></td>
+<td>Directory for DRMAA-level per-job stdout/stderr</td>
+</tr>
+<tr>
+<td><code>--jobs 14</code></td>
+<td>Maximum number of jobs running simultaneously on the cluster</td>
+</tr>
+<tr>
+<td><code>--default-resources ...</code></td>
+<td>Fallback resource values for any rule that does not declare them</td>
+</tr>
+<tr>
+<td><code>--latency-wait 30</code></td>
+<td>Wait up to 30 s for output files to appear after a job exits</td>
+</tr>
+<tr>
+<td><code>-p</code></td>
+<td>Print the resolved shell command for each submitted job</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inside-drmaa-args">Inside <code>--drmaa-args</code><a class="headerlink" href="#inside-drmaa-args" title="Permanent link">¶</a></h3>
+<p>The value is a template string. For every job Snakemake submits, it substitutes the rule's actual values before passing the string to the DRMAA library:</p>
+<table>
+<thead>
+<tr>
+<th>Placeholder</th>
+<th>Resolved to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{resources.partition}</code></td>
+<td>e.g. <code>short</code></td>
+</tr>
+<tr>
+<td><code>{resources.mem_mb}</code></td>
+<td>e.g. <code>32000</code></td>
+</tr>
+<tr>
+<td><code>{threads}</code></td>
+<td>e.g. <code>8</code></td>
+</tr>
+<tr>
+<td><code>{resources.runtime}</code></td>
+<td>e.g. <code>120</code>, formatted as <code>00:120:00</code></td>
+</tr>
+</tbody>
+</table>
+<p>The result is a valid Slurm native specification — equivalent to the arguments you would pass to <code>sbatch</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">The leading space in <code>--drmaa-args</code> is intentional</p>
+<p>The string starts with a space: <code>" -p ..."</code>. The DRMAA library internally prepends a job script name before this string. Without the leading space, the first Slurm flag runs directly into that name, producing a malformed submission. Do not remove it.</p>
+</div>
+<h3 id="-latency-wait-and-gpfs"><code>--latency-wait</code> and GPFS<a class="headerlink" href="#-latency-wait-and-gpfs" title="Permanent link">¶</a></h3>
+<p>The BMRC cluster uses GPFS, a distributed parallel file system. After a compute node writes a file, there can be a short propagation delay before the file is visible from the login node where Snakemake is running. Without <code>--latency-wait</code>, Snakemake may declare a job failed immediately after it exits, because the output file has not yet appeared on the login node. Setting <code>--latency-wait 30</code> tells Snakemake to poll for up to 30 seconds before giving up. This is almost always sufficient for GPFS.</p>
+<h3 id="-default-resources"><code>--default-resources</code><a class="headerlink" href="#-default-resources" title="Permanent link">¶</a></h3>
+<p>Any rule without explicit <code>resources:</code> will fall back to these values. This prevents a submission error if you add a new rule and forget to declare resources:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="o">--</span><span class="n">default</span><span class="o">-</span><span class="n">resources</span> <span class="n">mem_mb</span><span class="o">=</span><span class="mi">1000</span> <span class="n">runtime</span><span class="o">=</span><span class="mi">5</span> <span class="n">partition</span><span class="o">=</span><span class="n">short</span>
+</code></pre></div>
+</div>
+<p>Note that the line was commented out in the example — uncomment it for production use. Rules with their own <code>resources:</code> block are not affected by <code>--default-resources</code>.</p>
+<h2 id="localrules-rules-that-should-not-be-submitted"><code>localrules</code> — rules that should not be submitted<a class="headerlink" href="#localrules-rules-that-should-not-be-submitted" title="Permanent link">¶</a></h2>
+<p>Some rules are so fast and lightweight that submitting them to Slurm is wasteful — the queuing overhead would dwarf the actual computation. Declare them as local at the top of the Snakefile:</p>
+<div class="snakefile">
+<div class="highlight"><span class="filename">Snakefile</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">localrules</span><span class="p">:</span> <span class="nb">all</span>
+</code></pre></div>
+</div>
+<p><code>rule all</code> has no shell command and should always be local. If you have a rule that only creates a directory, writes a small config file, or copies a tiny file, make it local too.</p>
+<div class="admonition note-sticky">
+<p class="admonition-title">Local rules run on the login node</p>
+<p>Local rules execute directly in the Snakemake process on the login node, with no Slurm submission. Keep them genuinely lightweight — no alignment, no sorting, no compression.</p>
+</div>
+<h2 id="log-directory-setup">Log directory setup<a class="headerlink" href="#log-directory-setup" title="Permanent link">¶</a></h2>
+<p>Create the DRMAA log directory before running:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">logs</span><span class="o">/</span><span class="n">drmaa</span>
+</code></pre></div>
+<p>Slurm writes per-job stdout and stderr to <code>logs/drmaa/job_%j.out</code> and <code>logs/drmaa/job_%j.err</code> (where <code>%j</code> is the Slurm job ID). These are distinct from your rule-level <code>log:</code> files, which capture the tool's own output. When debugging a failure, check both:</p>
+<ul>
+<li><strong>Rule log</strong> (<code>logs/hisat2/SRR014335.log</code>) — what the tool printed</li>
+<li><strong>DRMAA job log</strong> (<code>logs/drmaa/job_12345678.err</code>) — what Slurm saw (out of memory, time limit, etc.)</li>
+</ul>
+<h2 id="running-the-pipeline">Running the pipeline<a class="headerlink" href="#running-the-pipeline" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Step 1 — dry run to verify the plan and resource assignments</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">snakemake</span> \
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  <span class="o">--</span><span class="n">executor</span> <span class="n">drmaa</span> \
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  <span class="o">--</span><span class="n">drmaa</span><span class="o">-</span><span class="n">args</span> <span class="s2">" -p </span><span class="si">{resources.partition}</span><span class="s2"> --mem=</span><span class="si">{resources.mem_mb}</span><span class="s2"> --cpus-per-task=</span><span class="si">{threads}</span><span class="s2"> --time=00:</span><span class="si">{resources.runtime}</span><span class="s2">:00 --output=logs/drmaa/job_%j.out --error=logs/drmaa/job_%j.err"</span> \
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  <span class="o">--</span><span class="n">drmaa</span><span class="o">-</span><span class="n">log</span><span class="o">-</span><span class="nb">dir</span> <span class="n">logs</span><span class="o">/</span><span class="n">drmaa</span> \
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  <span class="o">--</span><span class="n">jobs</span> <span class="mi">14</span> \
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  <span class="o">--</span><span class="n">default</span><span class="o">-</span><span class="n">resources</span> <span class="n">mem_mb</span><span class="o">=</span><span class="mi">1000</span> <span class="n">runtime</span><span class="o">=</span><span class="mi">5</span> <span class="n">partition</span><span class="o">=</span><span class="n">short</span> \
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  <span class="o">--</span><span class="n">latency</span><span class="o">-</span><span class="n">wait</span> <span class="mi">30</span> \
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  <span class="o">-</span><span class="n">n</span> <span class="o">-</span><span class="n">p</span>
+</code></pre></div>
+<p>Scan the dry-run output. Confirm that each job shows the memory, threads, runtime, and partition you expect. Then:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Step 2 — run for real from inside a tmux session</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">tmux</span> <span class="n">new</span> <span class="o">-</span><span class="n">s</span> <span class="n">snakemake</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">snakemake</span> \
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  <span class="o">--</span><span class="n">executor</span> <span class="n">drmaa</span> \
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>  <span class="o">--</span><span class="n">drmaa</span><span class="o">-</span><span class="n">args</span> <span class="s2">" -p </span><span class="si">{resources.partition}</span><span class="s2"> --mem=</span><span class="si">{resources.mem_mb}</span><span class="s2"> --cpus-per-task=</span><span class="si">{threads}</span><span class="s2"> --time=00:</span><span class="si">{resources.runtime}</span><span class="s2">:00 --output=logs/drmaa/job_%j.out --error=logs/drmaa/job_%j.err"</span> \
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  <span class="o">--</span><span class="n">drmaa</span><span class="o">-</span><span class="n">log</span><span class="o">-</span><span class="nb">dir</span> <span class="n">logs</span><span class="o">/</span><span class="n">drmaa</span> \
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>  <span class="o">--</span><span class="n">jobs</span> <span class="mi">14</span> \
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>  <span class="o">--</span><span class="n">default</span><span class="o">-</span><span class="n">resources</span> <span class="n">mem_mb</span><span class="o">=</span><span class="mi">1000</span> <span class="n">runtime</span><span class="o">=</span><span class="mi">5</span> <span class="n">partition</span><span class="o">=</span><span class="n">short</span> \
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>  <span class="o">--</span><span class="n">latency</span><span class="o">-</span><span class="n">wait</span> <span class="mi">30</span> \
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>  <span class="o">-</span><span class="n">p</span>
+</code></pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Always run inside tmux or screen</p>
+<p>The Snakemake process on the login node is the conductor — it submits jobs, monitors them, and triggers downstream steps when dependencies complete. If this process is killed by an SSH disconnect, submitted jobs may finish but Snakemake will not know, leaving the workflow in an inconsistent state. Always use <strong>tmux</strong> or <strong>screen</strong>.</p>
+</div>
+<h2 id="workflow-profiles-the-clean-way">Workflow profiles — the clean way<a class="headerlink" href="#workflow-profiles-the-clean-way" title="Permanent link">¶</a></h2>
+<p>Typing the full <code>--drmaa-args</code> string on every invocation is error-prone and not version-controllable in a meaningful way. A <strong>workflow profile</strong> stores all execution options in a YAML file alongside your Snakefile:</p>
+<div class="dracula">
+<div class="highlight"><span class="filename">profiles/drmaa/config.yaml</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">executor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drmaa</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">drmaa-args</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="nv"> </span><span class="s">-p</span><span class="nv"> </span><span class="s">{resources.partition}</span><span class="nv"> </span><span class="s">--mem={resources.mem_mb}</span><span class="nv"> </span><span class="s">--cpus-per-task={threads}</span><span class="nv"> </span><span class="s">--time=00:{resources.runtime}:00</span><span class="nv"> </span><span class="s">--output=logs/drmaa/job_%j.out</span><span class="nv"> </span><span class="s">--error=logs/drmaa/job_%j.err"</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nt">drmaa-log-dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/drmaa</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="nt">jobs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nt">default-resources</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">mem_mb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="nt">runtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">short</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="nt">latency-wait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="nt">printshellcmds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>Run with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="n">profile</span> <span class="n">profiles</span><span class="o">/</span><span class="n">drmaa</span>
+</code></pre></div>
+</div>
+<div class="admonition quote">
+<p class="admonition-title">Snakemake looks at current working diretory for <code>profiles</code> . If it is not in <code>CWD</code> , provide the absolute path .i.e. <code>--workflow-profile /absolute/path/to/profiles/drmaa</code></p>
+</div>
+<p>Commit <code>profiles/drmaa/config.yaml</code> to your repository. Collaborators running the same pipeline on BMRC use the same profile with no flags to remember.</p>
+<hr>
+<div class="admonition circle-question">
+<p class="admonition-title">Exercise</p>
+<h2 id="exercise-4">Exercise 4<a class="headerlink" href="#exercise-4" title="Permanent link">¶</a></h2>
+<ol>
+<li>Add <code>resources:</code> to every rule in your Episode 3 Snakefile (use the values from this episode as a starting point).</li>
+<li>Add <code>localrules: all</code> at the top.</li>
+<li>Create <code>logs/drmaa/</code>.</li>
+<li>Run a full dry-run with the DRMAA command. Verify that each job line shows the correct memory, threads, runtime, and partition values.</li>
+<li><strong>Bonus:</strong> Create <code>profiles/drmaa/config.yaml</code> and confirm that <code>snakemake --workflow-profile profiles/drmaa -n -p</code> produces the same output as the long-form command.</li>
+</ol>
+</div>
+<hr>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">¶</a></h2>
+<div class="admonition clipboard-list">
+<p class="admonition-title">Episode 4 summary</p>
+<ul>
+<li><strong><code>threads:</code></strong> maps to <code>--cpus-per-task</code>; <strong><code>resources:</code></strong> (mem_mb, runtime, partition) maps to the corresponding Slurm flags.</li>
+<li>The <code>--drmaa-args</code> string is a per-job template filled with <code>{resources.X}</code> and <code>{threads}</code> at submission time.</li>
+<li><strong><code>--jobs</code></strong> caps the number of concurrently running cluster jobs.</li>
+<li><strong><code>--latency-wait</code></strong> compensates for GPFS file propagation delay — 30 seconds is appropriate on BMRC.</li>
+<li><strong><code>--default-resources</code></strong> provides fallback values for rules without explicit resource declarations.</li>
+<li><strong><code>localrules:</code></strong> keeps trivial rules on the login node, avoiding unnecessary queue submissions.</li>
+<li>Always run the Snakemake conductor process inside <strong>tmux</strong> or <strong>screen</strong>.</li>
+<li><strong>Workflow profiles</strong> (<code>--workflow-profile</code>) store all cluster options in a version-controlled file — use them.</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../ep03_rnaseq_snakefile/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Episode 3: A Real Snakefile — RNA-seq from Scratch">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Episode 3: A Real Snakefile — RNA-seq from Scratch
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ep04b_slurm_executor/" class="md-footer__link md-footer__link--next" aria-label="Next: Episode 4b:Running on the Cluster — Slurm Executor">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Episode 4b:Running on the Cluster — Slurm Executor
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      KIR Training Catalogue is licensed under a <a rel="noopener" target="_blank" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
