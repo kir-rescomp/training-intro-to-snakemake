@@ -28,7 +28,8 @@ rule hisat2:
 ```
 </div>
 
-The benchmark file for one sample looks like:
+
+The benchmark file has a header row followed by one row of measurements:
 
 ```
 s       h:m:s   max_rss  max_vms  max_uss  max_pss  io_in   io_out  mean_load  cpu_time
@@ -54,38 +55,77 @@ shell:
     "hisat2 ... 2> {log} | samtools sort -o {output.bam}"
 ```
 
+
 **Capture both stdout and stderr (for tools that write to files):**
+
 ```python
 shell:
     "fastqc {input} --outdir results/fastqc/ &> {log}"
 ```
 
 **Common mistake — redirecting the result stream to the log:**
+
 ```python
 # Wrong: {output.bam} will be empty; the SAM stream goes to the log
 shell:
     "hisat2 ... | samtools sort -o {output.bam} &> {log}"
 ```
+
 </div>
 Test redirect behaviour on a small file before scaling up. A zero-byte output with a log full of SAM data is a reliable sign of this mistake.
 
-## Handling failures gracefully
+## Handling failures and reruns
+
+### How Snakemake decides what to rerun
+
+This is the part that has changed the most across Snakemake versions, so it is worth being precise about how Snakemake 9 behaves.
+
+In older Snakemake (≤ 7), rerun decisions were based almost entirely on file modification times. A change to a rule's `params:` or `shell:` command would *not* be detected, and you had to force reruns manually.
+
+Since Snakemake 8 — and unchanged in 9.16+ — rerun decisions are governed by `--rerun-triggers`, which **defaults to all of**:
+
+```
+mtime params input software-env code
+```
+
+In other words, out of the box Snakemake 9 *does* detect changes to a rule's parameters, its input set, its shell/script code, and its conda/container environment, and reruns the affected jobs accordingly. The old assumption that "Snakemake only looks at timestamps" no longer holds.
+
+!!! note-sticky "Implication for this workshop"
+    If you edit a `params:` value, a `shell:` command, or a value in `config.yaml` that feeds into `params:`, a default Snakemake 9 run will already plan to rerun the affected rules. You generally no longer need `-R rule_name` purely to pick up a parameter change.
+
+You can inspect *why* Snakemake wants to rerun something:
+
+<div class="dracula" markdown="1">
+```py
+# List jobs whose code changed since the last run
+snakemake --list-changes code [other flags]
+
+# Also available: params, input
+snakemake --list-changes params [other flags]
+```
+
+If you want the old timestamp-only behaviour (for example to avoid a large rerun after a trivial edit), restrict the triggers explicitly:
+
+```py
+snakemake --rerun-triggers mtime [other flags]
+```
+
 
 ### `--rerun-incomplete`
 
-If a job is killed mid-run — out of memory, walltime exceeded, node failure — the output file may be partially written. Snakemake does not automatically detect or delete partial outputs. On the next run, it sees the file exists and considers the rule done, which is wrong.
+If a job is killed mid-run — out of memory, walltime exceeded, node failure — the output file may be partially written. Snakemake marks such outputs as *incomplete* in its metadata, but it will not act on that unless told to. On the next run, without this flag, it may treat the file as present and the rule as done, which is wrong.
 
-```bash
+```py
 snakemake --rerun-incomplete [other flags]
 ```
 
-This flag detects outputs that exist but were not completed (based on Snakemake's internal tracking), removes them, and reruns the affected rules. Make it a default in your workflow profile.
+This flag forces Snakemake to rerun any jobs whose outputs are recorded as incomplete. Make it a default in your workflow profile.
 
 ### `--keep-going` / `-k`
 
 By default, Snakemake stops submitting new jobs when any job fails. With `--keep-going`, it continues submitting independent branches of the DAG even when one branch has failed:
 
-```bash
+```py
 snakemake --keep-going [other flags]
 ```
 
@@ -93,16 +133,17 @@ This is particularly useful when failures are likely to be sample-specific — a
 
 ### `--forcerun` / `-R`
 
-Snakemake tracks file modification timestamps to determine whether outputs are up to date. What it *cannot* detect is a change to a rule's `params:` or `shell:` command. If you change the HISAT2 `--rna-strandness` flag, the BAM timestamps will not change, and Snakemake will see the outputs as current.
+Even though Snakemake 9 detects most meaningful changes automatically, you sometimes want to force a rerun deliberately — for example after an upstream reference file changed outside Snakemake's view, or to reproduce a result from scratch.
 
 Force a rerun of a specific rule and all downstream rules:
 
-```bash
+```py
 snakemake -R hisat2 [other flags]
 ```
+</div>
 
-!!! warning "Snakemake does not track parameter changes"
-    If you change a value in `params:`, `shell:`, or even in `config.yaml`, Snakemake will not automatically rerun the affected rules. Use `-R rule_name` explicitly whenever you change a rule's behaviour. Some workflows use checksums or the `--list-code-changes` flag to make this more systematic.
+!!! tip "When you still need `-R` in Snakemake 9"
+    The default `--rerun-triggers` cover params, input, code, and software-env. Cases where you may still want `-R` explicitly: a change to a file Snakemake doesn't track as an input (e.g. a shared reference outside the workflow), forcing a clean reproduction, or when you have deliberately restricted triggers to `mtime`.
 
 ## `wildcard_constraints:` — preventing ambiguous matches
 
@@ -117,6 +158,7 @@ wildcard_constraints:
     read="R[12]"              # exactly R1 or R2
 ```
 
+
 Or constrain per-rule:
 
 ```python
@@ -125,11 +167,12 @@ rule hisat2:
         sample="[A-Za-z0-9]+"
     ...
 ```
-</div>
+
+
 
 For the RNA-seq pipeline in this workshop, adding global constraints for `sample` and `read` prevents any ambiguous matching between the `{sample}_{read}` pattern in `fastqc` and the `{sample}` pattern in `fastp`.
 
-## Conda environments per rule
+## Software deployment per rule
 
 Snakemake can automatically create and activate a per-rule conda environment, pinning exact tool versions alongside the code:
 
@@ -138,7 +181,9 @@ rule fastp:
     conda: "envs/fastp.yaml"
     ...
 ```
+</div>
 
+<div class="github-dark" markdown="1">
 ```yaml title="envs/fastp.yaml"
 channels:
   - bioconda
@@ -146,17 +191,23 @@ channels:
 dependencies:
   - fastp=0.23.4
 ```
+</div>
 
-Activate with:
+Activate it with the software-deployment-method flag:
 
-```bash
-snakemake --use-conda [other flags]
+<div class="dracula" markdown="1">
+```py
+snakemake --software-deployment-method conda [other flags]
+# short form:
+snakemake --sdm conda [other flags]
 ```
+</div>
+
 
 Snakemake creates each environment on first use and caches it. The YAML file lives in your repository — a reviewer or collaborator can recreate the exact software environment years later.
 
 !!! note-sticky "Lmod on BMRC vs `pixi`/`apptainer`"
-    On BMRC, most tools are deployed via Lmod modules. You can load a module inside the shell command (`module load HISAT2/...`) or use the `envmodules:` directive with `--use-envmodules`. For pipelines you intend to share beyond BMRC, `pixi` or `apptainer` provides stronger portability.
+    On BMRC, most tools are deployed via Lmod modules. You can load a module inside the shell command (`module load HISAT2/...`) or use the `envmodules:` directive with `--sdm env-modules`. For pipelines you intend to share beyond BMRC, `pixi` or `apptainer` provides stronger portability.
 
 ## The pre-flight checklist
 
@@ -168,7 +219,7 @@ Before any cluster run, work through this list:
 - [ ] benchmark: added to slow rules (alignment, trimming, quantification)
 - [ ] wildcard_constraints: defined for all wildcards used across rules
 - [ ] localrules: all (plus any other trivial rules)
-- [ ] logs/drmaa/ directory exists
+- [ ] log directories exist (e.g. `logs/`, and `logs/drmaa/` if using the DRMAA executor)
 - [ ] `--dry-run` passes cleanly with no errors or warnings
 - [ ] `--rulegraph` renders the expected structure
 - [ ] Running inside tmux or screen
@@ -177,21 +228,22 @@ Before any cluster run, work through this list:
 
 ## Common pitfalls
 
-| Problem | Symptom | Fix |
-|---------|---------|-----|
-| Missing output | Job exits 0 but Snakemake reports `MissingOutputException` | Verify the shell command actually writes to the exact `{output}` path |
-| Ambiguous wildcards | `WorkflowError: Ambiguous rule` | Add `wildcard_constraints:` |
-| Partial output from OOM/timeout | Rule appears done but output is empty or corrupt | `--rerun-incomplete` |
-| GPFS propagation delay | `MissingOutputException` immediately after job | Increase `--latency-wait` (try 60 s) |
-| Stale result after `params:` change | Downstream results are wrong but Snakemake sees no work to do | `-R rule_name` to force rerun |
-| Protected file blocks rerun | `ProtectedOutputException` | `chmod +w results/bam/*.bam` then rerun |
-| DRMAA log dir missing | Submission fails or logs are lost | `mkdir -p logs/drmaa` before running |
-| `&> {log}` swallows the output stream | Output file is empty | Switch to `2> {log}` for tools writing to stdout |
+| Problem                                   | Symptom                                                    | Fix                                                          |
+| ----------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ |
+| Missing output                            | Job exits 0 but Snakemake reports `MissingOutputException` | Verify the shell command actually writes to the exact `{output}` path |
+| Ambiguous wildcards                       | `WorkflowError: Ambiguous rule`                            | Add `wildcard_constraints:`                                  |
+| Partial output from OOM/timeout           | Rule appears done but output is empty or corrupt           | `--rerun-incomplete`                                         |
+| GPFS propagation delay                    | `MissingOutputException` immediately after job             | Increase `--latency-wait` (try 60 s)                         |
+| Unexpected large rerun after a small edit | Many jobs rerun because `params`/`code` triggers fired     | Restrict with `--rerun-triggers mtime` if intended           |
+| Protected file blocks rerun               | `ProtectedOutputException`                                 | `chmod +w results/bam/*.bam` then rerun                      |
+| DRMAA log dir missing                     | Submission fails or logs are lost                          | `mkdir -p logs/drmaa` before running                         |
+| `&> {log}` swallows the output stream     | Output file is empty                                       | Switch to `2> {log}` for tools writing to stdout             |
 
 ## Where to go next
 
 **Snakemake wrappers** — [snakemake-wrappers.readthedocs.io](https://snakemake-wrappers.readthedocs.io/) provides pre-written, tested rule wrappers for hundreds of bioinformatics tools (FastQC, STAR, DESeq2, samtools, and many more). A wrapper replaces the `shell:` block with a single `wrapper:` directive and a version tag:
 
+<div class="snakefile" markdown="1">
 ```python
 rule fastqc:
     input: "data/{sample}_{read}.fastq.gz"
@@ -199,10 +251,10 @@ rule fastqc:
         html="results/fastqc/{sample}_{read}_fastqc.html",
         zip="results/fastqc/{sample}_{read}_fastqc.zip"
     wrapper:
-        "v3.3.3/bio/fastqc"
+        "v5.5.0/bio/fastqc"
 ```
 
-The wrapper pulls the correct conda environment and shell command automatically. Using wrappers substantially reduces the boilerplate you maintain.
+Pin a recent wrapper tag from the wrappers repository (the `v5.x` series at time of writing) rather than an older one. The wrapper pulls the correct conda environment and shell command automatically, which substantially reduces the boilerplate you maintain.
 
 **`script:` directive** — run an R or Python script as the rule action, with the `snakemake` object automatically injected:
 
@@ -212,6 +264,7 @@ rule plot_pca:
     output: "results/pca.pdf"
     script: "scripts/plot_pca.R"
 ```
+</div>
 
 Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["pdf"]]`, and so on.
 
@@ -220,28 +273,29 @@ Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["p
 **`--report`** — generate a self-contained HTML run report summarising job timing, resource usage, and workflow structure. Useful for sharing with collaborators or including in supplementary materials.
 
 ---
+
 !!! circle-question "Exercise"
 
     ## Final exercise
-
+    
     Take the complete Snakefile from Episode 3 and:
-
+    
     1. Add `benchmark: "benchmarks/{rule}/{sample}.tsv"` to every per-sample rule (you can use the special `{rule}` wildcard, which Snakemake fills with the rule name).
     2. Add global `wildcard_constraints:` for `sample` and `read` at the top of the Snakefile.
     3. Add `--rerun-incomplete` and `--keep-going` to your workflow profile.
     4. Run a final dry-run with `--workflow-profile profiles/drmaa -n -p` and confirm everything looks correct.
-
+    
     ??? success "benchmark with {rule} wildcard"
         <div class="snakefile" markdown="1">
         ```python
         rule fastqc:
             benchmark: "benchmarks/{rule}/{sample}_{read}.tsv"
             ...
-
+    
         rule fastp:
             benchmark: "benchmarks/{rule}/{sample}.tsv"
             ...
-
+    
         rule hisat2:
             benchmark: "benchmarks/{rule}/{sample}.tsv"
             ...
@@ -255,10 +309,11 @@ Inside `plot_pca.R`, access `snakemake@input[["counts"]]`, `snakemake@output[["p
 
 !!! clipboard-list "Episode 5 summary"
     - **`benchmark:`** records timing and peak memory per job — use `max_rss` to tune `resources.mem_mb`.
-    - **`--rerun-incomplete`** removes and reruns partially-written outputs from killed jobs.
+    - **`--rerun-triggers`** defaults to `mtime params input software-env code` in Snakemake 9 — params and code changes are detected automatically; restrict to `mtime` if you want timestamp-only behaviour.
+    - **`--rerun-incomplete`** reruns jobs whose outputs were recorded as incomplete after a killed job.
     - **`--keep-going`** allows independent branches to continue when one branch fails.
-    - **`-R rule_name`** forces reruns after parameter changes that Snakemake cannot detect from timestamps alone.
+    - **`-R rule_name`** forces reruns for changes Snakemake cannot see (e.g. untracked reference files) or to reproduce from scratch.
     - **`wildcard_constraints:`** prevents ambiguous wildcard matching — define them globally for all wildcards used across multiple rules.
-    - **`conda:`** + `--use-conda` pins per-rule software versions in a version-controlled YAML — the reproducibility baseline.
+    - **`conda:`** + `--sdm conda` pins per-rule software versions in a version-controlled YAML — the reproducibility baseline.
     - **Snakemake wrappers** eliminate most boilerplate for standard bioinformatics tools.
     - The pre-flight checklist is not pedantry — it is how you avoid debugging a 30-sample run at midnight.
