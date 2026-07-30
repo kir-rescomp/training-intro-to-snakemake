@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/ep01_motivation/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/ep02_wildcards_dag/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/ep03_rnaseq_snakefile/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/ep04_slurm_drmaa/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/ep04b_slurm_executor/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://kir-rescomp.github.io/training-intro-to-snakemake/ep05_best_practices/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+</urlset>

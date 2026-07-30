@@ -1,0 +1,1279 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="The Kennedy Institute of Rheumatology, NDORMS, University of Oxford">
+      
+      
+        <link rel="canonical" href="https://kir-rescomp.github.io/training-intro-to-snakemake/ep05_best_practices/">
+      
+      
+        <link rel="prev" href="../ep04b_slurm_executor/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../images/kir_standalone_logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Episode 5: Robustness, Best Practices &amp; Going Further - Introduction to Snakemake</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,300i,400,400i,700,700i%7CFira+Code:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Mukta";--md-code-font:"Fira Code"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../stylesheets/catalogue-return-button.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_dracula.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_monokai.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_github_dark.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_nord.css">
+    
+      <link rel="stylesheet" href="../stylesheets/code_block_colour_onedark.css">
+    
+      <link rel="stylesheet" href="../stylesheets/side_bar_menu.css">
+    
+      <link rel="stylesheet" href="../stylesheets/snakefile.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#episode-5-robustness-best-practices-going-further" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Introduction to Snakemake" class="md-header__button md-logo" aria-label="Introduction to Snakemake" data-md-component="logo">
+      
+  <img src="../images/KIR_Research_Computing_Hub_layered_logo_favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Introduction to Snakemake
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Episode 5: Robustness, Best Practices &amp; Going Further
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo" aria-label="Switch to light mode" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo" aria-label="Switch to dark mode" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo" aria-label="Switch to system preference" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kir-rescomp/training-intro-to-snakemake" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    kir-rescomp/training-intro-to-snakemake
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Introduction to Snakemake" class="md-nav__button md-logo" aria-label="Introduction to Snakemake" data-md-component="logo">
+      
+  <img src="../images/KIR_Research_Computing_Hub_layered_logo_favicon.svg" alt="logo">
+
+    </a>
+    Introduction to Snakemake
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kir-rescomp/training-intro-to-snakemake" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    kir-rescomp/training-intro-to-snakemake
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep01_motivation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 1: From Shell Scripts to Snakemake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep02_wildcards_dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 2: Wildcards, expand(), and the DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep03_rnaseq_snakefile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 3: A Real Snakefile — RNA-seq from Scratch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep04_slurm_drmaa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 4a: Scaling to the Cluster : Slurm via DRMAA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ep04b_slurm_executor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 4b:Running on the Cluster — Slurm Executor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 5: Robustness, Best Practices &amp; Going Further
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Episode 5: Robustness, Best Practices &amp; Going Further
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#beyond-it-ran" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beyond "it ran"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-timing-and-memory-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark: — timing and memory profiling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log-a-brief-but-important-addendum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log: — a brief but important addendum
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handling-failures-and-reruns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handling failures and reruns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Handling failures and reruns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-snakemake-decides-what-to-rerun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Snakemake decides what to rerun
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-rerun-incomplete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --rerun-incomplete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-keep-going-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --keep-going / -k
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-forcerun-r" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --forcerun / -R
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wildcard_constraints-preventing-ambiguous-matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wildcard_constraints: — preventing ambiguous matches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software-deployment-per-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software deployment per rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pre-flight-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pre-flight checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to go next
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-exercise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final exercise
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#beyond-it-ran" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beyond "it ran"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-timing-and-memory-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark: — timing and memory profiling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log-a-brief-but-important-addendum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log: — a brief but important addendum
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handling-failures-and-reruns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handling failures and reruns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Handling failures and reruns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-snakemake-decides-what-to-rerun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Snakemake decides what to rerun
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-rerun-incomplete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --rerun-incomplete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-keep-going-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --keep-going / -k
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-forcerun-r" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --forcerun / -R
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wildcard_constraints-preventing-ambiguous-matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wildcard_constraints: — preventing ambiguous matches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software-deployment-per-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software deployment per rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pre-flight-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pre-flight checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to go next
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-exercise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final exercise
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="episode-5-robustness-best-practices-going-further">Episode 5: Robustness, Best Practices &amp; Going Further<a class="headerlink" href="#episode-5-robustness-best-practices-going-further" title="Permanent link">¶</a></h1>
+<h2 id="beyond-it-ran">Beyond "it ran"<a class="headerlink" href="#beyond-it-ran" title="Permanent link">¶</a></h2>
+<p>A Snakemake pipeline that reaches completion is not automatically a good pipeline. In a research computing context, you also need to know:</p>
+<ul>
+<li><em>How long did each rule actually take, and how much memory did it use?</em> — for resource tuning and future estimates.</li>
+<li><em>Which rule produced a corrupt output, and why?</em> — for debugging and reproducibility.</li>
+<li><em>How do I rerun only the jobs that failed without wasting cluster hours on the ones that succeeded?</em></li>
+<li><em>Are the tool versions pinned somewhere, or is this pipeline quietly non-reproducible?</em></li>
+</ul>
+<p>This episode covers the directives and invocation flags that close these gaps.</p>
+<h2 id="benchmark-timing-and-memory-profiling"><code>benchmark:</code> — timing and memory profiling<a class="headerlink" href="#benchmark-timing-and-memory-profiling" title="Permanent link">¶</a></h2>
+<p>The <code>benchmark:</code> directive writes a tab-separated file after every job, recording wall time, CPU time, and peak memory usage:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">rule</span> <span class="n">hisat2</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">input</span><span class="p">:</span> <span class="o">...</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">output</span><span class="p">:</span> <span class="o">...</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">log</span><span class="p">:</span>       <span class="s2">"logs/hisat2/</span><span class="si">{sample}</span><span class="s2">.log"</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">benchmark</span><span class="p">:</span> <span class="s2">"benchmarks/hisat2/</span><span class="si">{sample}</span><span class="s2">.tsv"</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">threads</span><span class="p">:</span> <span class="mi">8</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">resources</span><span class="p">:</span> <span class="o">...</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">shell</span><span class="p">:</span> <span class="o">...</span>
+</code></pre></div>
+</div>
+<p>The benchmark file has a header row followed by one row of measurements:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>s       h:m:s   max_rss  max_vms  max_uss  max_pss  io_in   io_out  mean_load  cpu_time
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>137.42  0:02:17 28654.2  38120.4  27304.1  27680.3  12180.2 4311.6  713.22     1018.4
+</code></pre></div>
+<p>The key column is <code>max_rss</code> — peak resident set size in megabytes. This is the number to use when setting <code>resources.mem_mb</code>. A good rule of thumb: set <code>mem_mb</code> to 1.5× the observed <code>max_rss</code>. This provides a safety margin while avoiding gross over-allocation.</p>
+<div class="admonition tip">
+<p class="admonition-title">Run benchmarks on a representative subset first</p>
+<p>On the first run of a new pipeline, use 2–3 samples rather than the full cohort. Collect benchmarks, tune resources, then run at scale. This avoids submitting 30 HISAT2 jobs with <code>mem_mb=64000</code> when 32000 would suffice.</p>
+</div>
+<p>Add <code>benchmark:</code> to every slow rule — alignment, quantification, trimming. Lightweight rules (FastQC, MultiQC) are less critical, but it costs nothing to include them.</p>
+<h2 id="log-a-brief-but-important-addendum"><code>log:</code> — a brief but important addendum<a class="headerlink" href="#log-a-brief-but-important-addendum" title="Permanent link">¶</a></h2>
+<p>You have been using <code>log:</code> throughout. A few patterns worth standardising before running production pipelines:</p>
+<p><strong>Capture stderr only (for tools that stream results to stdout):</strong></p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">shell</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="s2">"hisat2 ... 2&gt; </span><span class="si">{log}</span><span class="s2"> | samtools sort -o </span><span class="si">{output.bam}</span><span class="s2">"</span>
+</code></pre></div>
+<p><strong>Capture both stdout and stderr (for tools that write to files):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">shell</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">"fastqc </span><span class="si">{input}</span><span class="s2"> --outdir results/fastqc/ &amp;&gt; </span><span class="si">{log}</span><span class="s2">"</span>
+</code></pre></div>
+<p><strong>Common mistake — redirecting the result stream to the log:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Wrong: {output.bam} will be empty; the SAM stream goes to the log</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">shell</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="s2">"hisat2 ... | samtools sort -o </span><span class="si">{output.bam}</span><span class="s2"> &amp;&gt; </span><span class="si">{log}</span><span class="s2">"</span>
+</code></pre></div>
+</div>
+<p>Test redirect behaviour on a small file before scaling up. A zero-byte output with a log full of SAM data is a reliable sign of this mistake.</p>
+<h2 id="handling-failures-and-reruns">Handling failures and reruns<a class="headerlink" href="#handling-failures-and-reruns" title="Permanent link">¶</a></h2>
+<h3 id="how-snakemake-decides-what-to-rerun">How Snakemake decides what to rerun<a class="headerlink" href="#how-snakemake-decides-what-to-rerun" title="Permanent link">¶</a></h3>
+<p>This is the part that has changed the most across Snakemake versions, so it is worth being precise about how Snakemake 9 behaves.</p>
+<p>In older Snakemake (≤ 7), rerun decisions were based almost entirely on file modification times. A change to a rule's <code>params:</code> or <code>shell:</code> command would <em>not</em> be detected, and you had to force reruns manually.</p>
+<p>Since Snakemake 8 — and unchanged in 9.16+ — rerun decisions are governed by <code>--rerun-triggers</code>, which <strong>defaults to all of</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>mtime params input software-env code
+</code></pre></div>
+<p>In other words, out of the box Snakemake 9 <em>does</em> detect changes to a rule's parameters, its input set, its shell/script code, and its conda/container environment, and reruns the affected jobs accordingly. The old assumption that "Snakemake only looks at timestamps" no longer holds.</p>
+<div class="admonition note-sticky">
+<p class="admonition-title">Implication for this workshop</p>
+<p>If you edit a <code>params:</code> value, a <code>shell:</code> command, or a value in <code>config.yaml</code> that feeds into <code>params:</code>, a default Snakemake 9 run will already plan to rerun the affected rules. You generally no longer need <code>-R rule_name</code> purely to pick up a parameter change.</p>
+</div>
+<p>You can inspect <em>why</em> Snakemake wants to rerun something:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># List jobs whose code changed since the last run</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">snakemake</span> <span class="o">--</span><span class="nb">list</span><span class="o">-</span><span class="n">changes</span> <span class="n">code</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Also available: params, input</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">snakemake</span> <span class="o">--</span><span class="nb">list</span><span class="o">-</span><span class="n">changes</span> <span class="n">params</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+</code></pre></div>
+<p>If you want the old timestamp-only behaviour (for example to avoid a large rerun after a trivial edit), restrict the triggers explicitly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">rerun</span><span class="o">-</span><span class="n">triggers</span> <span class="n">mtime</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="-rerun-incomplete"><code>--rerun-incomplete</code><a class="headerlink" href="#-rerun-incomplete" title="Permanent link">¶</a></h3>
+<p>If a job is killed mid-run — out of memory, walltime exceeded, node failure — the output file may be partially written. Snakemake marks such outputs as <em>incomplete</em> in its metadata, but it will not act on that unless told to. On the next run, without this flag, it may treat the file as present and the rule as done, which is wrong.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">rerun</span><span class="o">-</span><span class="n">incomplete</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+</code></pre></div>
+<p>This flag forces Snakemake to rerun any jobs whose outputs are recorded as incomplete. Make it a default in your workflow profile.</p>
+<h3 id="-keep-going-k"><code>--keep-going</code> / <code>-k</code><a class="headerlink" href="#-keep-going-k" title="Permanent link">¶</a></h3>
+<p>By default, Snakemake stops submitting new jobs when any job fails. With <code>--keep-going</code>, it continues submitting independent branches of the DAG even when one branch has failed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">keep</span><span class="o">-</span><span class="n">going</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+</code></pre></div>
+<p>This is particularly useful when failures are likely to be sample-specific — a corrupt FASTQ for one sample should not halt all alignment jobs for the remaining 29. You can investigate and fix the failed sample while the others complete.</p>
+<h3 id="-forcerun-r"><code>--forcerun</code> / <code>-R</code><a class="headerlink" href="#-forcerun-r" title="Permanent link">¶</a></h3>
+<p>Even though Snakemake 9 detects most meaningful changes automatically, you sometimes want to force a rerun deliberately — for example after an upstream reference file changed outside Snakemake's view, or to reproduce a result from scratch.</p>
+<p>Force a rerun of a specific rule and all downstream rules:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">snakemake</span> <span class="o">-</span><span class="n">R</span> <span class="n">hisat2</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+</code></pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">When you still need <code>-R</code> in Snakemake 9</p>
+<p>The default <code>--rerun-triggers</code> cover params, input, code, and software-env. Cases where you may still want <code>-R</code> explicitly: a change to a file Snakemake doesn't track as an input (e.g. a shared reference outside the workflow), forcing a clean reproduction, or when you have deliberately restricted triggers to <code>mtime</code>.</p>
+</div>
+<h2 id="wildcard_constraints-preventing-ambiguous-matches"><code>wildcard_constraints:</code> — preventing ambiguous matches<a class="headerlink" href="#wildcard_constraints-preventing-ambiguous-matches" title="Permanent link">¶</a></h2>
+<p>Consider a rule with the output pattern <code>results/{sample}.bam</code>. If a filename like <code>results/SRR014335_trimmed.bam</code> exists, Snakemake might match <code>sample=SRR014335_trimmed</code> when you intended only <code>SRR014335</code>. Ambiguous wildcard matching can produce subtle, hard-to-diagnose bugs.</p>
+<p>Constrain wildcards at the top of the Snakefile using regex:</p>
+<div class="snakefile">
+<div class="highlight"><span class="filename">Snakefile</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">wildcard_constraints</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">sample</span><span class="o">=</span><span class="s2">"[A-Za-z0-9]+"</span><span class="p">,</span>   <span class="c1"># alphanumeric only — no underscores or dots</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">read</span><span class="o">=</span><span class="s2">"R[12]"</span>              <span class="c1"># exactly R1 or R2</span>
+</code></pre></div>
+<p>Or constrain per-rule:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">rule</span> <span class="n">hisat2</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">wildcard_constraints</span><span class="p">:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        <span class="n">sample</span><span class="o">=</span><span class="s2">"[A-Za-z0-9]+"</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="o">...</span>
+</code></pre></div>
+<p>For the RNA-seq pipeline in this workshop, adding global constraints for <code>sample</code> and <code>read</code> prevents any ambiguous matching between the <code>{sample}_{read}</code> pattern in <code>fastqc</code> and the <code>{sample}</code> pattern in <code>fastp</code>.</p>
+<h2 id="software-deployment-per-rule">Software deployment per rule<a class="headerlink" href="#software-deployment-per-rule" title="Permanent link">¶</a></h2>
+<p>Snakemake can automatically create and activate a per-rule conda environment, pinning exact tool versions alongside the code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">rule</span> <span class="n">fastp</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">conda</span><span class="p">:</span> <span class="s2">"envs/fastp.yaml"</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="o">...</span>
+</code></pre></div>
+</div>
+<div class="github-dark">
+<div class="highlight"><span class="filename">envs/fastp.yaml</span><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">channels</span><span class="p">:</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bioconda</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">conda-forge</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="nt">dependencies</span><span class="p">:</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastp=0.23.4</span>
+</code></pre></div>
+</div>
+<p>Activate it with the software-deployment-method flag:</p>
+<div class="dracula">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">software</span><span class="o">-</span><span class="n">deployment</span><span class="o">-</span><span class="n">method</span> <span class="n">conda</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1"># short form:</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">snakemake</span> <span class="o">--</span><span class="n">sdm</span> <span class="n">conda</span> <span class="p">[</span><span class="n">other</span> <span class="n">flags</span><span class="p">]</span>
+</code></pre></div>
+</div>
+<p>Snakemake creates each environment on first use and caches it. The YAML file lives in your repository — a reviewer or collaborator can recreate the exact software environment years later.</p>
+<div class="admonition note-sticky">
+<p class="admonition-title">Lmod on BMRC vs <code>pixi</code>/<code>apptainer</code></p>
+<p>On BMRC, most tools are deployed via Lmod modules. You can load a module inside the shell command (<code>module load HISAT2/...</code>) or use the <code>envmodules:</code> directive with <code>--sdm env-modules</code>. For pipelines you intend to share beyond BMRC, <code>pixi</code> or <code>apptainer</code> provides stronger portability.</p>
+</div>
+<h2 id="the-pre-flight-checklist">The pre-flight checklist<a class="headerlink" href="#the-pre-flight-checklist" title="Permanent link">¶</a></h2>
+<p>Before any cluster run, work through this list:</p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox"> rule all lists every desired final output</li>
+<li class="task-list-item"><input type="checkbox"> Every computational rule has: input, output, log, threads, resources</li>
+<li class="task-list-item"><input type="checkbox"> benchmark: added to slow rules (alignment, trimming, quantification)</li>
+<li class="task-list-item"><input type="checkbox"> wildcard_constraints: defined for all wildcards used across rules</li>
+<li class="task-list-item"><input type="checkbox"> localrules: all (plus any other trivial rules)</li>
+<li class="task-list-item"><input type="checkbox"> log directories exist (e.g. <code>logs/</code>, and <code>logs/drmaa/</code> if using the DRMAA executor)</li>
+<li class="task-list-item"><input type="checkbox"> <code>--dry-run</code> passes cleanly with no errors or warnings</li>
+<li class="task-list-item"><input type="checkbox"> <code>--rulegraph</code> renders the expected structure</li>
+<li class="task-list-item"><input type="checkbox"> Running inside tmux or screen</li>
+<li class="task-list-item"><input type="checkbox"> <code>--rerun-incomplete</code> and <code>--keep-going</code> included in the run command</li>
+</ul>
+<h2 id="common-pitfalls">Common pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing output</td>
+<td>Job exits 0 but Snakemake reports <code>MissingOutputException</code></td>
+<td>Verify the shell command actually writes to the exact <code>{output}</code> path</td>
+</tr>
+<tr>
+<td>Ambiguous wildcards</td>
+<td><code>WorkflowError: Ambiguous rule</code></td>
+<td>Add <code>wildcard_constraints:</code></td>
+</tr>
+<tr>
+<td>Partial output from OOM/timeout</td>
+<td>Rule appears done but output is empty or corrupt</td>
+<td><code>--rerun-incomplete</code></td>
+</tr>
+<tr>
+<td>GPFS propagation delay</td>
+<td><code>MissingOutputException</code> immediately after job</td>
+<td>Increase <code>--latency-wait</code> (try 60 s)</td>
+</tr>
+<tr>
+<td>Unexpected large rerun after a small edit</td>
+<td>Many jobs rerun because <code>params</code>/<code>code</code> triggers fired</td>
+<td>Restrict with <code>--rerun-triggers mtime</code> if intended</td>
+</tr>
+<tr>
+<td>Protected file blocks rerun</td>
+<td><code>ProtectedOutputException</code></td>
+<td><code>chmod +w results/bam/*.bam</code> then rerun</td>
+</tr>
+<tr>
+<td>DRMAA log dir missing</td>
+<td>Submission fails or logs are lost</td>
+<td><code>mkdir -p logs/drmaa</code> before running</td>
+</tr>
+<tr>
+<td><code>&amp;&gt; {log}</code> swallows the output stream</td>
+<td>Output file is empty</td>
+<td>Switch to <code>2&gt; {log}</code> for tools writing to stdout</td>
+</tr>
+</tbody>
+</table>
+<h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">¶</a></h2>
+<p><strong>Snakemake wrappers</strong> — <a href="https://snakemake-wrappers.readthedocs.io/">snakemake-wrappers.readthedocs.io</a> provides pre-written, tested rule wrappers for hundreds of bioinformatics tools (FastQC, STAR, DESeq2, samtools, and many more). A wrapper replaces the <code>shell:</code> block with a single <code>wrapper:</code> directive and a version tag:</p>
+<div class="snakefile">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">rule</span> <span class="n">fastqc</span><span class="p">:</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="nb">input</span><span class="p">:</span> <span class="s2">"data/</span><span class="si">{sample}</span><span class="s2">_</span><span class="si">{read}</span><span class="s2">.fastq.gz"</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="n">output</span><span class="p">:</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        <span class="n">html</span><span class="o">=</span><span class="s2">"results/fastqc/</span><span class="si">{sample}</span><span class="s2">_</span><span class="si">{read}</span><span class="s2">_fastqc.html"</span><span class="p">,</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>        <span class="nb">zip</span><span class="o">=</span><span class="s2">"results/fastqc/</span><span class="si">{sample}</span><span class="s2">_</span><span class="si">{read}</span><span class="s2">_fastqc.zip"</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="n">wrapper</span><span class="p">:</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>        <span class="s2">"v5.5.0/bio/fastqc"</span>
+</code></pre></div>
+<p>Pin a recent wrapper tag from the wrappers repository (the <code>v5.x</code> series at time of writing) rather than an older one. The wrapper pulls the correct conda environment and shell command automatically, which substantially reduces the boilerplate you maintain.</p>
+<p><strong><code>script:</code> directive</strong> — run an R or Python script as the rule action, with the <code>snakemake</code> object automatically injected:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">rule</span> <span class="n">plot_pca</span><span class="p">:</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="nb">input</span><span class="p">:</span> <span class="s2">"results/counts/all_samples.counts.txt"</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">output</span><span class="p">:</span> <span class="s2">"results/pca.pdf"</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">script</span><span class="p">:</span> <span class="s2">"scripts/plot_pca.R"</span>
+</code></pre></div>
+</div>
+<p>Inside <code>plot_pca.R</code>, access <code>snakemake@input[["counts"]]</code>, <code>snakemake@output[["pdf"]]</code>, and so on.</p>
+<p><strong><code>checkpoint</code> rules</strong> — for workflows where the set of outputs is not known until a rule has run (for example, splitting by chromosome after peak calling, or processing a variable number of clusters). Checkpoints allow Snakemake to re-evaluate the DAG mid-run.</p>
+<p><strong><code>--report</code></strong> — generate a self-contained HTML run report summarising job timing, resource usage, and workflow structure. Useful for sharing with collaborators or including in supplementary materials.</p>
+<hr>
+<div class="admonition circle-question">
+<p class="admonition-title">Exercise</p>
+<h2 id="final-exercise">Final exercise<a class="headerlink" href="#final-exercise" title="Permanent link">¶</a></h2>
+<p>Take the complete Snakefile from Episode 3 and:</p>
+<ol>
+<li>Add <code>benchmark: "benchmarks/{rule}/{sample}.tsv"</code> to every per-sample rule (you can use the special <code>{rule}</code> wildcard, which Snakemake fills with the rule name).</li>
+<li>Add global <code>wildcard_constraints:</code> for <code>sample</code> and <code>read</code> at the top of the Snakefile.</li>
+<li>Add <code>--rerun-incomplete</code> and <code>--keep-going</code> to your workflow profile.</li>
+<li>Run a final dry-run with <code>--workflow-profile profiles/drmaa -n -p</code> and confirm everything looks correct.</li>
+</ol>
+<details class="success">
+<summary>benchmark with {rule} wildcard</summary>
+<p></p><div class="snakefile" markdown="1">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">rule</span> <span class="n">fastqc</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">benchmark</span><span class="p">:</span> <span class="s2">"benchmarks/</span><span class="si">{rule}</span><span class="s2">/</span><span class="si">{sample}</span><span class="s2">_</span><span class="si">{read}</span><span class="s2">.tsv"</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="o">...</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">rule</span> <span class="n">fastp</span><span class="p">:</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">benchmark</span><span class="p">:</span> <span class="s2">"benchmarks/</span><span class="si">{rule}</span><span class="s2">/</span><span class="si">{sample}</span><span class="s2">.tsv"</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="o">...</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="n">rule</span> <span class="n">hisat2</span><span class="p">:</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>    <span class="n">benchmark</span><span class="p">:</span> <span class="s2">"benchmarks/</span><span class="si">{rule}</span><span class="s2">/</span><span class="si">{sample}</span><span class="s2">.tsv"</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="o">...</span>
+</code></pre></div>
+Note that <code>{rule}</code> is a special keyword — it is not a user-defined wildcard and does not need to appear in <code>output:</code>.
+</div><p></p>
+</details>
+</div>
+<hr>
+<h2 id="key-takeaways">Key takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">¶</a></h2>
+<div class="admonition clipboard-list">
+<p class="admonition-title">Episode 5 summary</p>
+<ul>
+<li><strong><code>benchmark:</code></strong> records timing and peak memory per job — use <code>max_rss</code> to tune <code>resources.mem_mb</code>.</li>
+<li><strong><code>--rerun-triggers</code></strong> defaults to <code>mtime params input software-env code</code> in Snakemake 9 — params and code changes are detected automatically; restrict to <code>mtime</code> if you want timestamp-only behaviour.</li>
+<li><strong><code>--rerun-incomplete</code></strong> reruns jobs whose outputs were recorded as incomplete after a killed job.</li>
+<li><strong><code>--keep-going</code></strong> allows independent branches to continue when one branch fails.</li>
+<li><strong><code>-R rule_name</code></strong> forces reruns for changes Snakemake cannot see (e.g. untracked reference files) or to reproduce from scratch.</li>
+<li><strong><code>wildcard_constraints:</code></strong> prevents ambiguous wildcard matching — define them globally for all wildcards used across multiple rules.</li>
+<li><strong><code>conda:</code></strong> + <code>--sdm conda</code> pins per-rule software versions in a version-controlled YAML — the reproducibility baseline.</li>
+<li><strong>Snakemake wrappers</strong> eliminate most boilerplate for standard bioinformatics tools.</li>
+<li>The pre-flight checklist is not pedantry — it is how you avoid debugging a 30-sample run at midnight.</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../ep04b_slurm_executor/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Episode 4b:Running on the Cluster — Slurm Executor">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Episode 4b:Running on the Cluster — Slurm Executor
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      KIR Training Catalogue is licensed under a <a rel="noopener" target="_blank" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
